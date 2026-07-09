@@ -1,1 +1,14 @@
-"# Shapefiles`n*.shp`n*.shx`n*.dbf`n*.prj`n*.cpg`n*.qmd`n*.zip`nshapefiles/`n__pycache__/`n*.pyc`ndesktop.ini`ntest_*.png`n.claude/" 
+# Shapefiles
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.qmd
+*.zip
+shapefiles/
+__pycache__/
+*.pyc
+desktop.ini
+test_*.png
+.claude/
