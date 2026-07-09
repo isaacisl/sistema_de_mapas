@@ -1,0 +1,3760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>CNM — Sistema de Mapas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    :root {
+      --blue: #003DA5;
+      --blue-dk: #002d7a;
+      --blue-lt: #1a56c4;
+      --sw: 340px
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5
+    }
+
+    /* TOPBAR */
+    #topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 52px;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .35)
+    }
+
+    #topbar .logo img {
+      height: 42px
+    }
+
+    #topbar .sep {
+      width: 1px;
+      height: 28px;
+      background: rgba(255, 255, 255, .3);
+      margin: 0 14px
+    }
+
+    #topbar .sys-title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .3px
+    }
+
+    /* LAYOUT */
+    #wrap {
+      display: flex;
+      padding-top: 52px;
+      height: 100vh
+    }
+
+    /* SIDEBAR */
+    #sb {
+      width: var(--sw);
+      min-width: var(--sw);
+      max-width: var(--sw);
+      background: #fff;
+      border-right: 1px solid #dde3ec;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sb-head {
+      background: var(--blue);
+      color: #fff;
+      padding: 14px 16px 10px
+    }
+
+    .sb-head h6 {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: .4px
+    }
+
+    .sb-head small {
+      font-size: 11px;
+      opacity: .75
+    }
+
+    .sb-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+    }
+
+    #sb-acoes {
+      padding: 10px 14px;
+      background: #fff;
+      border-bottom: 1px solid #dde3ec;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    #bloco-export-img {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #bloco-export-html {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Labels */
+    .fg label,
+    .lbl-s {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5a6474;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      display: block;
+      margin-bottom: 5px
+    }
+
+    .fg select {
+      width: 100%;
+      font-size: 13px
+    }
+
+    .hint-s {
+      font-size: 11px;
+      color: #5a6474;
+      margin-top: 3px;
+      font-style: italic
+    }
+
+    /* ── Help system ─────────────────────────────────────────────────────────── */
+    .lbl-help {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .lbl-help label,
+    .lbl-help .lbl-s {
+      margin-bottom: 0
+    }
+
+    .help-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #1976d2;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: background .15s, transform .1s;
+      box-shadow: 0 1px 3px rgba(25, 118, 210, .4);
+    }
+
+    .help-btn:hover {
+      background: #003DA5;
+      transform: scale(1.12)
+    }
+
+    .help-btn.active {
+      background: var(--blue);
+    }
+
+    .help-box {
+      display: none;
+      margin-top: 2px;
+      margin-bottom: 8px;
+      padding: 7px 10px 7px 12px;
+      background: #eef3fc;
+      border-left: 3px solid var(--blue);
+      border-radius: 0 5px 5px 0;
+      font-size: 11px;
+      color: #2d4070;
+      line-height: 1.55;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .help-box.show {
+      display: block
+    }
+
+    /* ── Help Modals ─────────────────────────────────────────────────────────── */
+    #csv-help-modal,
+    #calc-help-modal,
+    #viz-help-modal,
+    #escala-help-modal,
+    #paleta-help-modal,
+    #col-help-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: rgba(0, 0, 0, .48);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #csv-help-modal.show,
+    #calc-help-modal.show,
+    #viz-help-modal.show,
+    #escala-help-modal.show,
+    #paleta-help-modal.show,
+    #col-help-modal.show {
+      display: flex
+    }
+
+    .csv-mbox {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .3);
+    }
+
+    .csv-mhd {
+      background: var(--blue);
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+    }
+
+    .csv-mhd h6 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .csv-mclose {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: .8;
+      line-height: 1;
+    }
+
+    .csv-mclose:hover {
+      opacity: 1
+    }
+
+    .csv-mbody {
+      padding: 18px
+    }
+
+    .csv-mbody table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    .csv-mbody th {
+      background: var(--blue);
+      color: #fff;
+      padding: 7px 10px;
+      text-align: left
+    }
+
+    .csv-mbody td {
+      padding: 6px 10px;
+      border-top: 1px solid #dde3ec;
+      color: #1a2744
+    }
+
+    .csv-mbody tr:nth-child(even) td {
+      background: #f7f9fc
+    }
+
+    /* Pills */
+    .tipo-g {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap
+    }
+
+    .tipo-g input[type=radio] {
+      display: none
+    }
+
+    .tipo-g label {
+      flex: 1;
+      min-width: 60px;
+      text-align: center;
+      padding: 6px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1.5px solid #d0d7e3;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #5a6474;
+      transition: all .15s
+    }
+
+    .tipo-g input[type=radio]:checked+label {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue)
+    }
+
+    .tipo-g label:hover {
+      border-color: var(--blue);
+      color: var(--blue)
+    }
+
+    /* Upload zone */
+    #uz {
+      border: 2px dashed #b0bec5;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative
+    }
+
+    #uz:hover,
+    #uz.drag {
+      border-color: var(--blue);
+      background: #eef2fb
+    }
+
+    #uz input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer
+    }
+
+    #uz .zi {
+      font-size: 26px;
+      color: #90a4ae
+    }
+
+    #uz .zt {
+      font-size: 11px;
+      color: #78909c;
+      margin-top: 4px
+    }
+
+    #uz .zn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-top: 4px;
+      word-break: break-all
+    }
+
+    #painel-analise {
+      display: none
+    }
+
+    /* Step badge */
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      margin-right: 5px;
+      vertical-align: middle
+    }
+
+    /* Range */
+    .rl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #78909c;
+      margin-top: 2px
+    }
+
+    .rng-row {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .rng-row input[type=range] {
+      flex: 1
+    }
+
+    .rng-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue);
+      min-width: 32px;
+      text-align: right
+    }
+
+    /* Palette picker */
+    .pal-picker {
+      position: relative;
+      user-select: none
+    }
+
+    .pal-selected {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color .15s
+    }
+
+    .pal-selected:hover {
+      border-color: var(--blue)
+    }
+
+    .pal-blocks {
+      display: flex;
+      gap: 2px;
+      flex-shrink: 0
+    }
+
+    .pal-block {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px
+    }
+
+    .pal-label {
+      font-size: 12px;
+      color: #1a2744;
+      font-weight: 500;
+      flex: 1
+    }
+
+    .pal-drop {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      background: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+      margin-top: 4px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 4px 0
+    }
+
+    .pal-drop.open {
+      display: block
+    }
+
+    .pal-opt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background .12s
+    }
+
+    .pal-opt:hover {
+      background: #f0f4fb
+    }
+
+    .pal-opt.active {
+      background: #e8f0fd
+    }
+
+    .pal-opt .pal-block {
+      width: 26px;
+      height: 15px;
+      border-radius: 2px
+    }
+
+    .pal-opt .pal-nome {
+      font-size: 12px;
+      color: #3a4a60;
+      font-weight: 500
+    }
+
+    .pal-opt.active .pal-nome {
+      color: var(--blue);
+      font-weight: 700
+    }
+
+    /* Swatch cores de linha */
+    .swatch-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 4px
+    }
+
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform .12s, border-color .12s, box-shadow .12s;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .swatch:hover {
+      transform: scale(1.18);
+      border-color: rgba(0, 0, 0, .25);
+    }
+
+    .swatch.active {
+      border-color: #fff;
+      box-shadow: 0 0 0 2px #003DA5;
+      transform: scale(1.12);
+    }
+
+    .swatch.active::after {
+      content: '✓';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 3px rgba(0, 0, 0, .8), 0 1px 2px rgba(0, 0, 0, .6);
+      pointer-events: none;
+    }
+
+    .swatch[data-color="none"] {
+      background: repeating-linear-gradient(45deg, #ccc 0, #ccc 4px, #eee 4px, #eee 8px);
+    }
+
+    /* Color picker nativo (cores personalizadas) */
+    .color-pick-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .color-pick-wrap label {
+      font-size: 10px;
+      color: #78909c;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    input.color-pick {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #dde3ec;
+      border-radius: 6px;
+      padding: 1px;
+      cursor: pointer;
+      background: none;
+      transition: border-color .12s;
+    }
+
+    input.color-pick:hover {
+      border-color: #003DA5
+    }
+
+    /* Collapsible section */
+    .sec-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: #5a6474;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      cursor: pointer;
+      padding: 6px 0;
+      user-select: none
+    }
+
+    .sec-toggle:hover {
+      color: var(--blue)
+    }
+
+    .sec-toggle .chev {
+      font-size: 10px;
+      transition: transform .2s
+    }
+
+    .sec-body {
+      display: none;
+      padding-top: 8px
+    }
+
+    .sec-body.open {
+      display: block
+    }
+
+    .sec-wrap.open .chev {
+      transform: rotate(180deg)
+    }
+
+    /* Metrics list */
+    .metric-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      background: #f7f9fc;
+      border: 1px solid #e3e9f3;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: 4px
+    }
+
+    .metric-item:hover {
+      border-color: var(--blue)
+    }
+
+    .metric-item.active {
+      border-color: var(--blue);
+      background: #eef2fb
+    }
+
+    .metric-item .mi-icon {
+      color: var(--blue);
+      font-size: 13px;
+      width: 16px;
+      text-align: center
+    }
+
+    .metric-item .mi-info {
+      flex: 1
+    }
+
+    .metric-item .mi-nome {
+      font-weight: 700;
+      color: #1a2744
+    }
+
+    .metric-item .mi-col {
+      font-size: 10px;
+      color: #78909c
+    }
+
+    /* Generate button */
+    #btn-gerar {
+      width: 100%;
+      padding: 10px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .15s
+    }
+
+    #btn-gerar:hover {
+      background: var(--blue-lt)
+    }
+
+    #btn-gerar:disabled {
+      background: #90a4ae;
+      cursor: not-allowed
+    }
+
+    #btn-export,
+    #btn-export-svg {
+      width: 100%;
+      padding: 8px;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background .15s
+    }
+
+    #btn-export {
+      background: #2e7d32
+    }
+
+    #btn-export:hover {
+      background: #388e3c
+    }
+
+    #btn-export-svg {
+      background: #1565c0
+    }
+
+    #btn-export-svg:hover {
+      background: #1976d2
+    }
+
+    #btn-export:disabled,
+    #btn-export-svg:disabled {
+      background: #90a4ae;
+      cursor: not-allowed
+    }
+
+    #btn-export-html {
+      width: 100%;
+      padding: 8px;
+      background: #00695c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background .15s
+    }
+
+    #btn-export-html:hover {
+      background: #00897b
+    }
+
+    #map-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+
+    /* CONTENT */
+    #ct {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    #ct-head {
+      background: #fff;
+      padding: 10px 20px;
+      border-bottom: 1px solid #dde3ec;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    #ct-head h5 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a2744;
+      margin: 0
+    }
+
+    #map-wrap {
+      flex: 1;
+      position: relative;
+      background: #e8ecf1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto
+    }
+
+    #ph {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: #78909c
+    }
+
+    #ph .phi {
+      font-size: 64px;
+      opacity: .3
+    }
+
+    #ph h6 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #90a4ae
+    }
+
+    #ph p {
+      font-size: 13px;
+      max-width: 360px;
+      text-align: center
+    }
+
+    #ov {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, .85);
+      z-index: 500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px
+    }
+
+    #ov.show {
+      display: flex
+    }
+
+    .spin {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 4px solid #dde3ec;
+      border-top-color: var(--blue);
+      animation: sp .8s linear infinite
+    }
+
+    @keyframes sp {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    #ov p {
+      font-size: 14px;
+      color: #5a6474;
+      font-weight: 600
+    }
+
+    #map-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+      cursor: zoom-in
+    }
+
+    #map-img.zoomed {
+      max-width: none;
+      max-height: none;
+      cursor: zoom-out
+    }
+
+    /* Toast */
+    #tc {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999
+    }
+
+    .tm {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+      margin-top: 8px;
+      animation: si .25s ease
+    }
+
+    .tm.err {
+      background: #c62828
+    }
+
+    .tm.ok {
+      background: #2e7d32
+    }
+
+    .tm.info {
+      background: var(--blue)
+    }
+
+    @keyframes si {
+      from {
+        transform: translateX(30px);
+        opacity: 0
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid #e3e9f3;
+      margin: 4px 0
+    }
+
+    /* Categoria cor */
+    #bloco-cat-cores {
+      display: none
+    }
+
+    .cat-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: #f7f9fc;
+      border: 1px solid #e3e9f3;
+    }
+
+    .cat-row input[type="color"] {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      padding: 0;
+      background: none;
+      flex-shrink: 0;
+    }
+
+    .cat-row .cat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a2744;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-row .cat-count {
+      font-size: 10px;
+      color: #78909c;
+      flex-shrink: 0;
+    }
+
+    #cat-placeholder {
+      font-size: 11px;
+      color: #78909c;
+      text-align: center;
+      padding: 10px 0;
+      font-style: italic;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    /* ── Tour / Onboarding ──────────────────────────────────────────────────── */
+    #tour-welcome {
+      display: none; position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,.65); align-items: center; justify-content: center;
+    }
+    #tour-welcome.show { display: flex }
+    .tw-box {
+      background: #fff; border-radius: 18px; padding: 44px 40px 36px;
+      max-width: 460px; width: 92%; text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4); animation: tw-in .3s ease;
+    }
+    @keyframes tw-in { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
+    .tw-icon { font-size: 56px; margin-bottom: 14px; line-height: 1 }
+    .tw-box h4 { font-size: 21px; font-weight: 800; color: #1a2744; margin-bottom: 10px }
+    .tw-box p  { font-size: 14px; color: #5a6474; margin-bottom: 22px; line-height: 1.65 }
+    .tw-check {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 26px; font-size: 13px; color: #5a6474; cursor: pointer
+    }
+    .tw-check input { cursor: pointer; width: 15px; height: 15px; accent-color: var(--blue) }
+    .tw-btns { display: flex; gap: 10px; justify-content: center }
+    .tw-btn-yes {
+      padding: 11px 30px; background: var(--blue); color: #fff;
+      border: none; border-radius: 9px; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background .15s
+    }
+    .tw-btn-yes:hover { background: var(--blue-lt) }
+    .tw-btn-no {
+      padding: 11px 24px; background: #f0f2f5; color: #5a6474;
+      border: none; border-radius: 9px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background .15s
+    }
+    .tw-btn-no:hover { background: #e0e4ea }
+
+    /* Bloqueadores laterais (deixam o elemento-alvo clicável) */
+    .tour-blocker {
+      display: none; position: fixed; z-index: 9000;
+      background: rgba(0,0,0,.58); pointer-events: all;
+    }
+    .tour-blocker.show { display: block }
+
+    /* Anel de destaque — pointer-events:none para não bloquear cliques no alvo */
+    #tour-highlight {
+      display: none; position: fixed; z-index: 9001;
+      border-radius: 9px; border: 2.5px solid #003DA5; pointer-events: none;
+      transition: left .25s, top .25s, width .25s, height .25s;
+    }
+    #tour-highlight.show { display: block }
+
+    /* Tooltip */
+    #tour-tooltip {
+      display: none; position: fixed; z-index: 9002;
+      background: #fff; border-radius: 13px;
+      padding: 20px 22px 14px; width: 320px; max-height: calc(100vh - 24px); overflow-y: auto;
+      box-shadow: 0 10px 36px rgba(0,0,0,.28);
+    }
+    #tour-tooltip.show { display: block }
+    .tour-tt-count {
+      font-size: 11px; font-weight: 700; color: var(--blue);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px
+    }
+    .tour-tt-title { font-size: 15px; font-weight: 800; color: #1a2744; margin-bottom: 8px }
+    .tour-tt-text  {
+      font-size: 13px; color: #5a6474; line-height: 1.65;
+      margin-bottom: 12px; white-space: pre-line
+    }
+    /* Status: aguardando / concluído */
+    .tour-tt-status {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 10px; border-radius: 7px; margin-bottom: 12px;
+      font-size: 12px; font-weight: 600; transition: all .2s
+    }
+    .tour-tt-status.waiting { background: #fff8e1; color: #e65100 }
+    .tour-tt-status.done    { background: #e8f5e9; color: #2e7d32 }
+    .tour-tt-btns { display: flex; gap: 7px; align-items: center }
+    .tour-btn-next {
+      flex: 1; padding: 9px; background: var(--blue); color: #fff;
+      border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .15s
+    }
+    .tour-btn-next:hover:not(:disabled) { background: var(--blue-lt) }
+    .tour-btn-next:disabled { background: #b0bec5; cursor: not-allowed }
+    .tour-btn-prev {
+      padding: 9px 13px; background: #f0f2f5; color: #5a6474;
+      border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background .15s
+    }
+    .tour-btn-prev:hover { background: #e0e4ea }
+    .tour-btn-skip {
+      padding: 9px 10px; background: none; color: #b0bec5;
+      border: none; font-size: 12px; cursor: pointer; text-decoration: underline
+    }
+    .tour-btn-skip:hover { color: #78909c }
+    .tw-progress { display: flex; gap: 5px; justify-content: center; margin-top: 14px }
+    .tw-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #dde3ec; transition: background .2s
+    }
+    .tw-dot.active { background: var(--blue) }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div class="logo"><img src="{{ url_for('static', filename='Logo-CNM-branco.png') }}" alt="CNM" /></div>
+    <div class="sep"></div>
+    <span class="sys-title"><i class="bi bi-map-fill me-2"></i>Sistema de Mapas</span>
+    <button onclick="initTour(true)" title="Ver tutorial"
+      style="margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s"
+      onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">
+      <i class="bi bi-question-circle"></i> Tutorial
+    </button>
+  </header>
+
+  <div id="wrap">
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside id="sb">
+      <div class="sb-head">
+        <h6><i class="bi bi-sliders me-1"></i>Configurar Mapa</h6>
+        <small>Arquivo CSV ou entrada manual de áreas</small>
+      </div>
+
+      <div id="sb-acoes">
+        <!-- Tipo de mapa -->
+        <div id="bloco-saida" style="margin-bottom:4px">
+          <div class="lbl-help" style="margin-bottom:5px">
+            <label style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:0">
+              <i class="bi bi-image me-1"></i>Tipo de saída
+            </label>
+            <button class="help-btn" data-help="h-saida" onclick="toggleHelp('h-saida')">?</button>
+          </div>
+          <div class="help-box" id="h-saida"><b>Figura</b> gera uma imagem estática (PNG/SVG) de alta qualidade, ideal para relatórios e apresentações.<br><br><b>HTML Interativo</b> cria um mapa navegável no navegador, com zoom e tooltips ao passar o mouse.</div>
+          <div class="tipo-g">
+            <input type="radio" name="tipo-mapa" id="tm-figura" value="figura" checked>
+            <label for="tm-figura"><i class="bi bi-image"></i><br>Figura</label>
+            <input type="radio" name="tipo-mapa" id="tm-html" value="html">
+            <label for="tm-html"><i class="bi bi-globe2"></i><br>HTML Interativo</label>
+          </div>
+        </div>
+        <!-- Tile layer (só aparece no modo HTML) -->
+        <div id="bloco-tile" style="display:none;margin-bottom:4px">
+          <div
+            style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">
+            <i class="bi bi-layers me-1"></i>Fundo do mapa
+          </div>
+          <div class="tipo-g">
+            <input type="radio" name="tile-layer" id="tl-urbano" value="urbano" checked>
+            <label for="tl-urbano"><i class="bi bi-map"></i><br>Urbano</label>
+            <input type="radio" name="tile-layer" id="tl-satelite" value="satelite">
+            <label for="tl-satelite"><i class="bi bi-satellite"></i><br>Satélite</label>
+          </div>
+        </div>
+        <button id="btn-gerar" onclick="gerarMapa()"><i class="bi bi-map-fill"></i> Gerar Mapa</button>
+        <div id="bloco-export-img">
+          <button id="btn-export" onclick="exportarPNG()"><i class="bi bi-download"></i> Exportar PNG (300 dpi)</button>
+          <button id="btn-export-svg" onclick="exportarSVG()"><i class="bi bi-filetype-svg"></i> Exportar SVG
+            (vetorial)</button>
+        </div>
+        <div id="bloco-export-html" style="display:none">
+          <button id="btn-export-html" onclick="exportarHTML()"><i class="bi bi-filetype-html"></i> Exportar
+            HTML</button>
+        </div>
+      </div>
+
+      <div class="sb-body">
+
+        <!-- ══ MODO CSV ══ -->
+        <div id="modo-csv">
+
+          <div class="fg">
+            <div class="lbl-help">
+              <label><i class="bi bi-upload me-1"></i>Arquivo (CSV / Excel)</label>
+              <button class="help-btn" onclick="openCsvHelp()" title="Ver estrutura da planilha">?</button>
+            </div>
+            <div id="uz">
+              <input type="file" id="inp-file" accept=".csv,.txt,.xlsx,.xls,.xlsm" />
+              <div class="zi"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+              <div class="zt">Arraste ou clique para selecionar<br><small style="opacity:.7">CSV · Excel (.xlsx /
+                  .xls / .xlsm)</small></div>
+              <div class="zn" id="fn-label"></div>
+            </div>
+            <button type="button" id="btn-remover" class="btn btn-sm btn-outline-secondary mt-1 w-100"
+              style="display:none">
+              <i class="bi bi-x-circle me-1"></i>Remover arquivo
+            </button>
+            <!-- Seletor de aba (aparece só quando Excel tem múltiplas abas) -->
+            <div id="wrap-aba" class="fg mt-2" style="display:none">
+              <label><i class="bi bi-collection me-1"></i>Aba da planilha</label>
+              <select id="sel-aba" class="form-select form-select-sm"></select>
+            </div>
+          </div>
+
+          <div id="painel-analise">
+            <div style="background:#f7f9fc;border:1px solid #e3e9f3;border-radius:8px;padding:10px 12px">
+              <div
+                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">
+                <i class="bi bi-file-earmark-check me-1"></i>Arquivo carregado
+              </div>
+              <div id="csv-stats" style="font-size:12px;color:#1a2744;font-weight:600"></div>
+              <div id="csv-cols" style="font-size:11px;color:#78909c;margin-top:3px"></div>
+            </div>
+
+            <div id="fg-nivel" class="fg" style="margin-top:8px">
+              <div class="lbl-help">
+                <label><span class="step-num">1</span>Nível geográfico</label>
+                <button class="help-btn" data-help="h-nivel" onclick="toggleHelp('h-nivel')">?</button>
+              </div>
+              <div class="help-box" id="h-nivel">Define se o mapa será colorido por <b>município</b>, <b>estado</b> ou
+                <b>região</b>. Selecione conforme o nível dos seus dados.
+              </div>
+              <div class="tipo-g">
+                <input type="radio" name="nivel" id="nv-mun" value="municipio" checked>
+                <label for="nv-mun"><i class="bi bi-buildings"></i><br>Município</label>
+                <input type="radio" name="nivel" id="nv-uf" value="uf">
+                <label for="nv-uf"><i class="bi bi-map"></i><br>Estado</label>
+                <input type="radio" name="nivel" id="nv-reg" value="regiao">
+                <label for="nv-reg"><i class="bi bi-globe-americas"></i><br>Região</label>
+              </div>
+            </div>
+
+            <div id="fg-foco" class="fg" style="margin-top:8px">
+              <div class="lbl-help">
+                <label>Recortar por Estado ou Região <span
+                    style="font-weight:400;text-transform:none">(Opcional)</span></label>
+                <button class="help-btn" data-help="h-foco" onclick="toggleHelp('h-foco')">?</button>
+              </div>
+              <div class="help-box" id="h-foco">Filtra o mapa para exibir apenas um estado ou região, ocultando os
+                demais. Útil para análises regionais.</div>
+              <select id="sel-foco-uf" class="form-select form-select-sm mt-1" style="display:none">
+                <option value="">— Todos os estados —</option>
+                <option>AC</option>
+                <option>AL</option>
+                <option>AM</option>
+                <option>AP</option>
+                <option>BA</option>
+                <option>CE</option>
+                <option>DF</option>
+                <option>ES</option>
+                <option>GO</option>
+                <option>MA</option>
+                <option>MG</option>
+                <option>MS</option>
+                <option>MT</option>
+                <option>PA</option>
+                <option>PB</option>
+                <option>PE</option>
+                <option>PI</option>
+                <option>PR</option>
+                <option>RJ</option>
+                <option>RN</option>
+                <option>RO</option>
+                <option>RR</option>
+                <option>RS</option>
+                <option>SC</option>
+                <option>SE</option>
+                <option>SP</option>
+                <option>TO</option>
+              </select>
+              <select id="sel-foco-reg" class="form-select form-select-sm mt-1" style="display:none">
+                <option value="">— Todas as regiões —</option>
+                <option>Norte</option>
+                <option>Nordeste</option>
+                <option>Centro-Oeste</option>
+                <option>Sudeste</option>
+                <option>Sul</option>
+              </select>
+              <div id="hint-foco" class="hint-s" style="display:none"></div>
+            </div>
+
+            <div class="fg">
+              <div class="lbl-help">
+                <label><span class="step-num">2</span>Coluna Código IBGE Completo</label>
+                <button class="help-btn" data-help="h-geo" onclick="toggleHelp('h-geo')">?</button>
+              </div>
+              <div class="help-box" id="h-geo">Selecione a coluna da planilha que contém o <b>código IBGE</b> numérico
+                (7 dígitos para município, 2 para estado). É ela que conecta seus dados ao mapa.</div>
+              <select id="sel-col-geo" class="form-select form-select-sm"></select>
+              <div id="preview-geo" class="hint-s"></div>
+            </div>
+
+            <div class="fg">
+              <div class="lbl-help">
+                <label><span class="step-num">3</span>Tipo de Cálculo</label>
+                <button class="help-btn" onclick="openCalcHelp()" title="Ver exemplos de cálculo">?</button>
+              </div>
+              <select id="sel-agr" class="form-select form-select-sm mt-1">
+                <option value="sum">Soma</option>
+                <option value="mean">Média</option>
+                <option value="max">Máximo</option>
+                <option value="min">Mínimo</option>
+                <option value="count">Contagem</option>
+              </select>
+            </div>
+
+            <div class="fg">
+              <div class="lbl-help">
+                <label><span class="step-num">4</span>O que deseja visualizar no mapa?</label>
+                <button class="help-btn" onclick="openColHelp()">?</button>
+              </div>
+              <select id="sel-col-num" class="form-select form-select-sm">
+                <option value="">— selecione —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- ══ FIM CSV ══ -->
+
+        <hr class="divider" />
+
+        <!-- Tipo de Visualização -->
+        <div id="fg-viz" class="fg">
+          <div class="lbl-help">
+            <label><i class="bi bi-layers me-1"></i>Tipo de visualização</label>
+            <button class="help-btn" onclick="openVizHelp()">?</button>
+          </div>
+          <div class="tipo-g">
+            <input type="radio" name="tipo-viz" id="tv-calor" value="calorico" checked>
+            <label for="tv-calor"><i class="bi bi-thermometer-half"></i><br>Calor</label>
+            <input type="radio" name="tipo-viz" id="tv-cat" value="categorico">
+            <label for="tv-cat"><i class="bi bi-tags"></i><br>Categórico</label>
+          </div>
+        </div>
+
+        <!-- Paleta (visível no modo calor/categórico) -->
+        <div class="fg" id="bloco-paleta">
+          <div class="lbl-help">
+            <label><i class="bi bi-palette me-1"></i>Paleta de cores</label>
+            <button class="help-btn" onclick="openPaletaHelp()">?</button>
+          </div>
+          <input type="hidden" id="sel-paleta" value="Blues" />
+          <div class="pal-picker" id="pal-picker">
+            <div class="pal-selected" id="pal-selected" onclick="togglePalDrop()">
+              <span class="pal-blocks" id="pal-blocks-preview"></span>
+              <span class="pal-label" id="pal-label-preview">Azul</span>
+              <i class="bi bi-chevron-down" style="font-size:11px;margin-left:auto;color:#78909c"></i>
+            </div>
+            <div class="pal-drop" id="pal-drop"></div>
+          </div>
+          <!-- Distribuição de cores -->
+          <div style="margin-top:8px">
+            <div class="lbl-help">
+              <span class="lbl-s"><i class="bi bi-bar-chart-steps me-1"></i>Distribuição de cores</span>
+              <button class="help-btn" onclick="openEscalaHelp()">?</button>
+            </div>
+            <div class="tipo-g" style="margin-top:4px">
+              <input type="radio" name="escala-cor" id="ec-linear" value="linear" checked>
+              <label for="ec-linear">Linear</label>
+              <input type="radio" name="escala-cor" id="ec-rank" value="proporcional">
+              <label for="ec-rank">Proporcional</label>
+              <input type="radio" name="escala-cor" id="ec-log" value="log">
+              <label for="ec-log">Log</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cores por categoria (visível só no modo categórico) -->
+        <div id="bloco-cat-cores">
+          <div class="lbl-help" style="margin-bottom:6px">
+            <label><i class="bi bi-palette2 me-1"></i>Cor por categoria</label>
+            <button class="help-btn" data-help="h-cat-cores" onclick="toggleHelp('h-cat-cores')">?</button>
+          </div>
+          <div class="help-box" id="h-cat-cores">No modo <b>Categórico</b>, cada valor único da coluna recebe uma cor distinta. Clique nas cores abaixo para personalizá-las individualmente.</div>
+          <div id="cat-lista" style="display:flex;flex-direction:column;gap:5px">
+            <div id="cat-placeholder">Selecione uma coluna categórica para definir as cores.</div>
+          </div>
+        </div>
+
+        <!-- Estilos de Linha -->
+        <div class="sec-wrap" id="sec-linhas">
+          <div class="sec-toggle" onclick="toggleSec(this)">
+            <span><i class="bi bi-border-width me-1"></i>Estilos de Linha</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button class="help-btn" data-help="h-linhas"
+                onclick="event.stopPropagation();toggleHelp('h-linhas')">?</button>
+              <i class="bi bi-chevron-down chev"></i>
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="help-box" id="h-linhas" style="margin-bottom:10px">Controla a espessura e cor das bordas
+              desenhadas no mapa. Desmarque o checkbox para ocultar cada borda.</div>
+
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <input type="checkbox" id="chk-mun" class="form-check-input mt-0" />
+              <label for="chk-mun"
+                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Municípios</label>
+              <button class="help-btn ms-auto" data-help="h-mun" onclick="toggleHelp('h-mun')">?</button>
+            </div>
+            <div class="help-box" id="h-mun">Borda entre municípios individuais. Espessuras menores ficam mais
+              discretas; use 0 ou desmarque para ocultar completamente.</div>
+            <div id="ctrl-mun" style="display:none">
+              <div class="rng-row mb-1">
+                <input type="range" id="rng-mun" class="form-range" min="0" max="3" step="0.1" value="0.3"
+                  oninput="document.getElementById('v-mun').textContent=this.value" />
+                <span class="rng-val" id="v-mun">0.3</span>
+              </div>
+              <div class="swatch-row mb-3" id="sw-mun"></div>
+              <input type="hidden" id="cor-mun" value="black" />
+            </div>
+
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <input type="checkbox" id="chk-uf" class="form-check-input mt-0" />
+              <label for="chk-uf"
+                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Contorno
+                UF</label>
+              <button class="help-btn ms-auto" data-help="h-uf" onclick="toggleHelp('h-uf')">?</button>
+            </div>
+            <div class="help-box" id="h-uf">Linha que delimita as fronteiras entre <b>estados</b>. Costuma ser mais
+              grossa que a borda dos municípios para destacar melhor as divisas.</div>
+            <div id="ctrl-uf" style="display:none">
+              <div class="rng-row mb-1">
+                <input type="range" id="rng-uf" class="form-range" min="0" max="5" step="0.1" value="0.8"
+                  oninput="document.getElementById('v-uf').textContent=this.value" />
+                <span class="rng-val" id="v-uf">0.8</span>
+              </div>
+              <div class="swatch-row mb-3" id="sw-uf"></div>
+              <input type="hidden" id="cor-uf" value="black" />
+            </div>
+
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <input type="checkbox" id="chk-reg" class="form-check-input mt-0" />
+              <label for="chk-reg"
+                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Contorno
+                Região</label>
+              <button class="help-btn ms-auto" data-help="h-reg" onclick="toggleHelp('h-reg')">?</button>
+            </div>
+            <div class="help-box" id="h-reg">Linha que delimita as <b>5 regiões</b> do Brasil (Norte, Nordeste,
+              Centro-Oeste, Sudeste e Sul). Geralmente a mais grossa das três bordas.</div>
+            <div id="ctrl-reg" style="display:none">
+              <div class="rng-row mb-1">
+                <input type="range" id="rng-reg" class="form-range" min="0" max="6" step="0.1" value="1.5"
+                  oninput="document.getElementById('v-reg').textContent=this.value" />
+                <span class="rng-val" id="v-reg">1.5</span>
+              </div>
+              <div class="swatch-row" id="sw-reg"></div>
+              <input type="hidden" id="cor-reg" value="black" />
+            </div>
+
+            <div class="d-flex align-items-center gap-2 mb-1" style="margin-top:10px">
+              <input type="checkbox" id="chk-sem-dado-hachura" class="form-check-input mt-0" checked />
+              <label for="chk-sem-dado-hachura"
+                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Hachura
+                em áreas sem dado</label>
+              <button class="help-btn ms-auto" data-help="h-sem-dado" onclick="toggleHelp('h-sem-dado')">?</button>
+            </div>
+            <div class="help-box" id="h-sem-dado">Municípios sem valor correspondente no arquivo aparecem com um
+              padrão de linhas (///) além da cor cinza. Desmarque para deixá-los apenas com a cor sólida, sem o
+              padrão.</div>
+
+            <div class="two-col" style="margin-top:8px">
+              <div class="fg">
+                <label>Cor da área sem dado</label>
+                <div class="swatch-row" id="sw-sem-dado"></div>
+                <div class="color-pick-wrap">
+                  <label>Personalizada</label>
+                  <input type="color" class="color-pick" id="pick-sem-dado" value="#d9d9d9"
+                    title="Escolher cor personalizada" />
+                </div>
+                <input type="hidden" id="cor-sem-dado" value="#d9d9d9" />
+              </div>
+              <div class="fg" id="fg-cor-hachura">
+                <label>Cor da hachura</label>
+                <div class="swatch-row" id="sw-hachura"></div>
+                <div class="color-pick-wrap">
+                  <label>Personalizada</label>
+                  <input type="color" class="color-pick" id="pick-hachura" value="#999999"
+                    title="Escolher cor personalizada" />
+                </div>
+                <input type="hidden" id="cor-hachura" value="#999999" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legenda -->
+        <div class="sec-wrap" id="sec-legenda">
+          <div class="sec-toggle" onclick="toggleSec(this)">
+            <span><i class="bi bi-list-ul me-1"></i>Legenda</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button class="help-btn" data-help="h-legenda"
+                onclick="event.stopPropagation();toggleHelp('h-legenda')">?</button>
+              <i class="bi bi-chevron-down chev"></i>
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="help-box" id="h-legenda" style="margin-bottom:10px">Configura a legenda do mapa: como os valores
+              são agrupados, quantas classes exibir e onde a legenda aparece.</div>
+            <div class="two-col">
+              <div class="fg">
+                <div class="lbl-help">
+                  <label>Tipo</label>
+                  <button class="help-btn" data-help="h-tipo-leg" onclick="toggleHelp('h-tipo-leg')">?</button>
+                </div>
+                <div class="help-box" id="h-tipo-leg"><b>Contagem por cor ★:</b> mostra quantos municípios têm cada
+                  cor.<br><b>Natural Breaks:</b> agrupa por quebras naturais nos dados.<br><b>Quantis:</b> grupos com
+                  mesmo nº de municípios.<br><b>Intervalos Iguais:</b> faixas de valor iguais.<br><b>Contínua:</b> barra
+                  de gradiente sem divisões.</div>
+                <select id="sel-tipo-leg" class="form-select form-select-sm"
+                  onchange="toggleLegendaOpcoes(this.value); atualizarPreviewLegenda(this.value)">
+                  <option value="Contagem">Contagem por cor ★</option>
+                  <option value="Natural Breaks">Natural Breaks</option>
+                  <option value="Quantiles">Quantis</option>
+                  <option value="Equal Interval">Intervalos Iguais</option>
+                  <option value="Contínua">Contínua (barra)</option>
+                  <option value="Sem legenda" selected>Sem legenda</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Orientação</label>
+                <select id="sel-orient-leg" class="form-select form-select-sm">
+                  <option value="vertical">Vertical</option>
+                  <option value="horizontal">Horizontal</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg" style="margin-top:6px">
+              <label>Posição da legenda (opcional)</label>
+              <select id="sel-loc-leg" class="form-select form-select-sm">
+                <option value="lower right">Canto inferior direito</option>
+                <option value="lower left">Canto inferior esquerdo</option>
+                <option value="upper right">Canto superior direito</option>
+                <option value="upper left">Canto superior esquerdo</option>
+                <option value="center left">Centro esquerda</option>
+                <option value="center right">Centro direita</option>
+                <option value="lower center">Centro inferior</option>
+                <option value="upper center">Centro superior</option>
+              </select>
+            </div>
+            <!-- Renomear rótulos da legenda -->
+            <div id="wrap-leg-labels" style="display:none;margin-top:8px">
+              <label style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px">
+                Renomear rótulos
+              </label>
+              <div id="leg-labels-lista" style="margin-top:4px;display:flex;flex-direction:column;gap:4px"></div>
+            </div>
+
+            <!-- Preview do tipo de legenda -->
+            <div id="preview-legenda"
+              style="margin-top:10px;background:#f7f9fc;border:1px solid #e3e9f3;border-radius:8px;padding:10px 12px">
+              <div id="prev-leg-visual" style="margin-bottom:7px"></div>
+              <div id="prev-leg-titulo" style="font-size:12px;font-weight:700;color:#1a2744;margin-bottom:3px"></div>
+              <div id="prev-leg-desc" style="font-size:11px;color:#5a6474;line-height:1.5"></div>
+              <div id="prev-leg-quando" style="font-size:11px;color:#003DA5;margin-top:4px;font-weight:600"></div>
+            </div>
+
+            <input type="hidden" id="inp-k-leg" value="5" />
+            <div class="d-flex align-items-center gap-2 mb-1" style="margin-top:8px">
+              <input type="checkbox" id="chk-titulo-leg-ativo" class="form-check-input mt-0" checked
+                onchange="
+                  const on=this.checked;
+                  document.getElementById('inp-titulo-leg').closest('.fg').style.opacity=on?'1':'0.4';
+                  const wlf=document.getElementById('wrap-leg-fonte');
+                  if(wlf) wlf.style.opacity=on?'1':'0.4';
+                  ['sel-fonte-leg','inp-tam-leg'].forEach(id=>{document.getElementById(id).disabled=!on;});
+                " />
+              <label for="chk-titulo-leg-ativo" style="font-size:12px;margin:0;cursor:pointer">Mostrar título da legenda</label>
+            </div>
+            <div class="fg">
+              <label>Título da legenda</label>
+              <input type="text" id="inp-titulo-leg" class="form-control form-control-sm"
+                placeholder="Ex: Nº de ocorrências" />
+            </div>
+            <div class="two-col" id="wrap-leg-fonte" style="margin-top:8px">
+              <div class="fg">
+                <label>Fonte da legenda</label>
+                <select id="sel-fonte-leg" class="form-select form-select-sm">
+                  <optgroup label="Padrão">
+                    <option selected>DejaVu Sans</option>
+                    <option>DejaVu Serif</option>
+                    <option>DejaVu Sans Mono</option>
+                    <option>STIXGeneral</option>
+                  </optgroup>
+                  <optgroup label="Sem serifa">
+                    <option>Arial</option>
+                    <option>Calibri</option>
+                    <option>Helvetica</option>
+                    <option>Lato</option>
+                    <option>Montserrat</option>
+                    <option>Open Sans</option>
+                    <option>Roboto</option>
+                    <option>Segoe UI</option>
+                    <option>Verdana</option>
+                  </optgroup>
+                  <optgroup label="Com serifa">
+                    <option>Georgia</option>
+                    <option>Times New Roman</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Tamanho</label>
+                <input type="number" id="inp-tam-leg" class="form-control form-control-sm" value="9" min="6" max="24" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Título do Mapa -->
+        <div class="sec-wrap" id="sec-titulo">
+          <div class="sec-toggle" onclick="toggleSec(this)">
+            <span><i class="bi bi-fonts me-1"></i>Título do Mapa</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button class="help-btn" data-help="h-titulo"
+                onclick="event.stopPropagation();toggleHelp('h-titulo')">?</button>
+              <i class="bi bi-chevron-down chev"></i>
+            </div>
+          </div>
+          <div class="sec-body">
+            <div class="help-box" id="h-titulo" style="margin-bottom:10px">Texto que aparece acima do mapa. Use
+              <b>Posição X/Y</b> para ajustar o posicionamento: X=0 é esquerda, X=1 é direita; Y acima de 1 fica acima
+              do mapa.
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <input type="checkbox" id="chk-titulo-ativo" class="form-check-input mt-0"
+                onchange="document.getElementById('ctrl-titulo').style.opacity=this.checked?'1':'0.4';" />
+              <label for="chk-titulo-ativo" style="font-size:12px;margin:0;cursor:pointer">Mostrar título do mapa</label>
+            </div>
+            <div id="ctrl-titulo" style="opacity:0.4">
+            <div class="fg mb-2">
+              <label>Texto</label>
+              <input type="text" id="inp-titulo" class="form-control form-control-sm" value="Mapa temático do Brasil" />
+            </div>
+            <div class="two-col mb-2">
+              <div class="fg">
+                <label>Fonte</label>
+                <select id="sel-fonte" class="form-select form-select-sm">
+                  <optgroup label="Padrão">
+                    <option>DejaVu Sans</option>
+                    <option>DejaVu Serif</option>
+                    <option>DejaVu Sans Mono</option>
+                    <option>STIXGeneral</option>
+                  </optgroup>
+                  <optgroup label="Sem serifa">
+                    <option>Arial</option>
+                    <option>Calibri</option>
+                    <option>Helvetica</option>
+                    <option>Lato</option>
+                    <option>Montserrat</option>
+                    <option>Open Sans</option>
+                    <option>Poppins</option>
+                    <option>Roboto</option>
+                    <option>Segoe UI</option>
+                    <option>Tahoma</option>
+                    <option>Trebuchet MS</option>
+                    <option>Verdana</option>
+                  </optgroup>
+                  <optgroup label="Com serifa">
+                    <option>Cambria</option>
+                    <option>Georgia</option>
+                    <option>Times New Roman</option>
+                  </optgroup>
+                  <optgroup label="Outros">
+                    <option>Consolas</option>
+                    <option>Courier New</option>
+                    <option>Impact</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Tamanho</label>
+                <input type="number" id="inp-tam-titulo" class="form-control form-control-sm" value="16" min="6"
+                  max="60" />
+              </div>
+            </div>
+            <div class="d-flex gap-3 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chk-negrito" />
+                <label class="form-check-label" for="chk-negrito" style="font-size:12px">Negrito</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chk-italico" />
+                <label class="form-check-label" for="chk-italico" style="font-size:12px">Itálico</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chk-sublinhado" />
+                <label class="form-check-label" for="chk-sublinhado" style="font-size:12px">Sublinhado</label>
+              </div>
+            </div>
+            <div class="fg mb-2">
+              <label>Alinhamento</label>
+              <div class="tipo-g">
+                <input type="radio" name="titulo-ha" id="ha-left" value="left">
+                <label for="ha-left">Esquerda</label>
+                <input type="radio" name="titulo-ha" id="ha-center" value="center" checked>
+                <label for="ha-center">Centro</label>
+                <input type="radio" name="titulo-ha" id="ha-right" value="right">
+                <label for="ha-right">Direita</label>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="fg">
+                <label>Posição X <span style="font-weight:400;text-transform:none">(0–1)</span></label>
+                <div class="rng-row">
+                  <input type="range" id="rng-tx" class="form-range" min="0" max="1" step="0.01" value="0.5"
+                    oninput="document.getElementById('v-tx').textContent=parseFloat(this.value).toFixed(2)" />
+                  <span class="rng-val" id="v-tx">0.50</span>
+                </div>
+              </div>
+              <div class="fg">
+                <label>Posição Y</label>
+                <div class="rng-row">
+                  <input type="range" id="rng-ty" class="form-range" min="0.8" max="1.3" step="0.01" value="1.02"
+                    oninput="document.getElementById('v-ty').textContent=parseFloat(this.value).toFixed(2)" />
+                  <span class="rng-val" id="v-ty">1.02</span>
+                </div>
+              </div>
+            </div>
+            </div><!-- /ctrl-titulo -->
+          </div>
+        </div>
+
+
+      </div><!-- /sb-body -->
+    </aside>
+    <!-- ═══════ FIM SIDEBAR ═══════ -->
+
+    <!-- ═══════ CONTEÚDO ═══════ -->
+    <main id="ct">
+      <div id="ct-head">
+        <nav>
+          <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item" style="font-size:12px"><i class="bi bi-house"></i></li>
+            <li class="breadcrumb-item active" style="font-size:12px">Gerador de Mapas</li>
+          </ol>
+        </nav>
+        <h5 class="ms-2">Mapeamento por Shapefiles IBGE</h5>
+      </div>
+      <div id="map-wrap">
+        <div id="ph">
+          <div class="phi"><i class="bi bi-map"></i></div>
+          <h6>Configure e clique em Gerar Mapa</h6>
+          <p>Carregue um CSV/Excel e adicione métricas, ou use o modo de Entrada Manual. Clique na imagem para ampliar.
+          </p>
+        </div>
+        <div id="ov">
+          <div class="spin"></div>
+          <p id="ov-msg">Processando…</p>
+        </div>
+        <img id="map-img" src="" alt="Mapa gerado" onclick="toggleZoom(this)" />
+        <iframe id="map-iframe" title="Mapa interativo"></iframe>
+        <!-- Painel de avisos -->
+        <div id="avisos-panel" style="display:none;margin:10px 16px 0;border-radius:8px;overflow:hidden;font-size:12px">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tc"></div>
+
+  <!-- ═══════ TOUR WELCOME ═══════ -->
+  <div id="tour-welcome">
+    <div class="tw-box">
+      <div class="tw-icon">🗺️</div>
+      <h4>Bem-vindo ao Sistema de Mapas CNM</h4>
+      <p>Deseja ver um tutorial rápido sobre como usar o sistema? Leva menos de 1 minuto.</p>
+      <label class="tw-check">
+        <input type="checkbox" id="tw-no-show" />
+        Não mostrar novamente
+      </label>
+      <div class="tw-btns">
+        <button class="tw-btn-yes" onclick="startTour()">
+          <i class="bi bi-play-fill"></i> Sim, ver tutorial
+        </button>
+        <button class="tw-btn-no" onclick="closeTourWelcome()">Não, obrigado</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TOUR ELEMENTOS ═══════ -->
+  <div class="tour-blocker" id="tour-bl-top"></div>
+  <div class="tour-blocker" id="tour-bl-bottom"></div>
+  <div class="tour-blocker" id="tour-bl-left"></div>
+  <div class="tour-blocker" id="tour-bl-right"></div>
+  <div id="tour-highlight"></div>
+  <div id="tour-tooltip">
+    <div class="tour-tt-count" id="tour-tt-count"></div>
+    <div class="tour-tt-title" id="tour-tt-title"></div>
+    <div class="tour-tt-text" id="tour-tt-text"></div>
+    <div class="tour-tt-status waiting" id="tour-tt-status">
+      <span id="tour-tt-status-icon">⏳</span>
+      <span id="tour-tt-status-text">Realize a ação para continuar</span>
+    </div>
+    <div class="tour-tt-btns">
+      <button class="tour-btn-prev" id="tour-btn-prev" onclick="tourPrev()">← Anterior</button>
+      <button class="tour-btn-next" id="tour-btn-next" onclick="tourNext()" disabled>Próximo →</button>
+      <button class="tour-btn-skip" onclick="endTour()">Pular</button>
+    </div>
+    <div class="tw-progress" id="tour-dots"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ── Paletas ───────────────────────────────────────────────────────────────────
+    const PALETAS = [
+      { id: 'Blues', nome: 'Azul', cores: ['#eff3ff', '#bdd7e7', '#6baed6', '#2171b5', '#084594'] },
+      { id: 'Reds', nome: 'Vermelho', cores: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
+      { id: 'Greens', nome: 'Verde', cores: ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'] },
+      { id: 'Oranges', nome: 'Laranja', cores: ['#fff5eb', '#fdd0a2', '#fdae6b', '#e6550d', '#a63603'] },
+      { id: 'Purples', nome: 'Roxo', cores: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'] },
+      { id: 'YlOrRd', nome: 'Amarelo → Vermelho', cores: ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026'] },
+      { id: 'YlGnBu', nome: 'Amarelo → Azul', cores: ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'] },
+      { id: 'RdPu', nome: 'Vermelho → Roxo', cores: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'] },
+      { id: 'viridis', nome: 'Viridis', cores: ['#440154', '#31688e', '#35b779', '#fde725', '#fde725'] },
+      { id: 'plasma', nome: 'Plasma', cores: ['#0d0887', '#7e03a8', '#cc4778', '#f89540', '#f0f921'] },
+      { id: 'coolwarm', nome: 'Frio → Quente', cores: ['#3b4cc0', '#6688ee', '#dddddd', '#ee8866', '#b40426'] },
+      { id: 'RdYlGn', nome: 'Vermelho → Verde', cores: ['#d73027', '#fc8d59', '#fee08b', '#91cf60', '#1a9850'] },
+    ];
+
+    const CORES_LINHA = [
+      { c: 'black', bg: '#111' },
+      { c: '#444', bg: '#444' },
+      { c: 'gray', bg: 'gray' },
+      { c: '#bbb', bg: '#bbb' },
+      { c: 'white', bg: '#fff', border: '#ccc' },
+      { c: 'navy', bg: 'navy' },
+      { c: 'darkred', bg: 'darkred' },
+    ];
+
+    function blocksHTML(cores) {
+      return cores.map(c => `<span class="pal-block" style="background:${c}"></span>`).join('');
+    }
+
+    (function buildPalDrop() {
+      document.getElementById('pal-blocks-preview').innerHTML = blocksHTML(PALETAS[0].cores);
+      const drop = document.getElementById('pal-drop');
+      PALETAS.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'pal-opt' + (p.id === 'Blues' ? ' active' : '');
+        d.dataset.id = p.id;
+        d.innerHTML = `<span class="pal-blocks">${blocksHTML(p.cores)}</span><span class="pal-nome">${p.nome}</span>`;
+        d.onclick = () => selecionarPaleta(p);
+        drop.appendChild(d);
+      });
+    })();
+
+    function togglePalDrop() { document.getElementById('pal-drop').classList.toggle('open'); }
+
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#pal-picker')) document.getElementById('pal-drop').classList.remove('open');
+    });
+    function selecionarPaleta(p) {
+      document.getElementById('sel-paleta').value = p.id;
+      document.getElementById('pal-blocks-preview').innerHTML = blocksHTML(p.cores);
+      document.getElementById('pal-label-preview').textContent = p.nome;
+      document.querySelectorAll('.pal-opt').forEach(o => o.classList.toggle('active', o.dataset.id === p.id));
+      document.getElementById('pal-drop').classList.remove('open');
+    }
+
+    // ── Swatches de cor de linha ──────────────────────────────────────────────────
+    function buildSwatches(containerId, hiddenId, defaultColor) {
+      const c = document.getElementById(containerId);
+      CORES_LINHA.forEach(({ c: cor, bg, border }) => {
+        const s = document.createElement('span');
+        s.className = 'swatch' + (cor === defaultColor ? ' active' : '');
+        s.title = cor === 'none' ? 'Sem linha' : cor;
+        s.dataset.color = cor;
+        if (bg) s.style.background = bg;
+        if (border) s.style.outlineColor = border;
+        s.onclick = () => {
+          c.querySelectorAll('.swatch').forEach(x => x.classList.remove('active'));
+          s.classList.add('active');
+          document.getElementById(hiddenId).value = cor;
+        };
+        c.appendChild(s);
+      });
+    }
+    buildSwatches('sw-mun', 'cor-mun', 'black');
+    buildSwatches('sw-uf', 'cor-uf', 'black');
+    buildSwatches('sw-reg', 'cor-reg', 'black');
+
+    function toggleLineCtrl(chkId, ctrlId) {
+      document.getElementById(ctrlId).style.display =
+        document.getElementById(chkId).checked ? '' : 'none';
+    }
+    document.getElementById('chk-mun').addEventListener('change', () => toggleLineCtrl('chk-mun', 'ctrl-mun'));
+    document.getElementById('chk-uf').addEventListener('change', () => toggleLineCtrl('chk-uf', 'ctrl-uf'));
+    document.getElementById('chk-reg').addEventListener('change', () => toggleLineCtrl('chk-reg', 'ctrl-reg'));
+
+    // Linha de município só pode ser ligada quando o mapa está recortado para um
+    // único estado — no Brasil inteiro são ~5.570 bordas, o que só polui o mapa.
+    function atualizarDisponibilidadeLinhaMun() {
+      const nivel = document.querySelector('input[name="nivel"]:checked')?.value;
+      const focoUf = document.getElementById('sel-foco-uf').value;
+      const podeMexer = nivel === 'municipio' && focoUf !== '';
+      const chk = document.getElementById('chk-mun');
+      const wrap = chk.closest('.d-flex');
+      if (!podeMexer) {
+        chk.checked = false;
+        chk.disabled = true;
+        toggleLineCtrl('chk-mun', 'ctrl-mun');
+        wrap.style.opacity = '0.5';
+        wrap.title = 'Disponível apenas ao recortar o mapa por um estado específico (evita milhares de bordas no Brasil inteiro).';
+      } else {
+        chk.disabled = false;
+        wrap.style.opacity = '1';
+        wrap.title = '';
+      }
+    }
+    document.getElementById('sel-foco-uf').addEventListener('change', atualizarDisponibilidadeLinhaMun);
+    document.querySelectorAll('input[name="nivel"]').forEach(r =>
+      r.addEventListener('change', atualizarDisponibilidadeLinhaMun)
+    );
+    atualizarDisponibilidadeLinhaMun();
+
+    // Swatches de paleta ampla (cor sem dado, hachura)
+    const CORES_AMPLA = [
+      '#d9d9d9', '#ffffff', '#111111', '#003DA5', '#1a56c4',
+      '#c62828', '#2e7d32', '#e65100', '#6a1b9a', '#f9a825', '#00838f',
+    ];
+    function buildSwatchesAmplo(containerId, hiddenId, defaultColor) {
+      const c = document.getElementById(containerId);
+      CORES_AMPLA.forEach(cor => {
+        const s = document.createElement('span');
+        s.className = 'swatch' + (cor === defaultColor ? ' active' : '');
+        s.title = cor; s.dataset.color = cor;
+        s.style.background = cor;
+        if (cor === '#ffffff') s.style.border = '2px solid #ccc';
+        s.onclick = () => {
+          c.querySelectorAll('.swatch').forEach(x => x.classList.remove('active'));
+          s.classList.add('active');
+          document.getElementById(hiddenId).value = cor;
+        };
+        c.appendChild(s);
+      });
+    }
+    // Color pickers — ao escolher cor personalizada, desmarca swatches
+    function setupColorPick(pickId, hiddenId, swRowId) {
+      const pick = document.getElementById(pickId);
+      pick.addEventListener('input', () => {
+        document.getElementById(hiddenId).value = pick.value;
+        document.querySelectorAll(`#${swRowId} .swatch`).forEach(s => s.classList.remove('active'));
+      });
+    }
+
+    buildSwatchesAmplo('sw-sem-dado', 'cor-sem-dado', '#d9d9d9');
+    buildSwatchesAmplo('sw-hachura', 'cor-hachura', '#999999');
+    setupColorPick('pick-sem-dado', 'cor-sem-dado', 'sw-sem-dado');
+    setupColorPick('pick-hachura', 'cor-hachura', 'sw-hachura');
+
+    function atualizarVisibilidadeCorHachura() {
+      const ativo = document.getElementById('chk-sem-dado-hachura').checked;
+      document.getElementById('fg-cor-hachura').style.opacity = ativo ? '1' : '0.4';
+    }
+    document.getElementById('chk-sem-dado-hachura').addEventListener('change', atualizarVisibilidadeCorHachura);
+    atualizarVisibilidadeCorHachura();
+
+    // ── Tipo de visualização ──────────────────────────────────────────────────────
+    let todasColunas = [], colunasNumericas = [], valoresUnicos = {};
+
+    const CAT_COLORS_DEFAULT = [
+      '#003DA5', '#e53935', '#43a047', '#fb8c00', '#8e24aa',
+      '#00acc1', '#795548', '#f06292', '#26a69a', '#fdd835',
+      '#546e7a', '#ef6c00', '#5c6bc0', '#66bb6a', '#ab47bc'
+    ];
+
+    function atualizarCatCores(coluna) {
+      const lista = document.getElementById('cat-lista');
+      const placeholder = document.getElementById('cat-placeholder');
+      lista.querySelectorAll('.cat-row').forEach(el => el.remove());
+      if (!coluna || !valoresUnicos[coluna]) {
+        placeholder.style.display = 'block';
+        return;
+      }
+      placeholder.style.display = 'none';
+      const cats = valoresUnicos[coluna];
+      cats.forEach((cat, i) => {
+        const cor = CAT_COLORS_DEFAULT[i % CAT_COLORS_DEFAULT.length];
+        const row = document.createElement('div');
+        row.className = 'cat-row';
+        row.dataset.cat = cat;
+        row.innerHTML = `
+          <input type="color" value="${cor}" title="Cor de ${cat}" />
+          <span class="cat-label" title="${cat}">${cat}</span>`;
+        lista.appendChild(row);
+      });
+    }
+
+    document.querySelectorAll('input[name="tipo-viz"]').forEach(r => r.addEventListener('change', function () {
+      const cat = this.value === 'categorico';
+      document.getElementById('bloco-paleta').style.display = cat ? 'none' : '';
+      document.getElementById('bloco-cat-cores').style.display = cat ? 'block' : 'none';
+      const cols = cat ? todasColunas : colunasNumericas;
+      const sel = document.getElementById('sel-col-num');
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">— selecione —</option>';
+      cols.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if (c === prev) o.selected = true; sel.appendChild(o); });
+      if (cat) atualizarCatCores(sel.value);
+    }));
+
+    document.getElementById('sel-col-num').addEventListener('change', function () {
+      const cat = document.querySelector('input[name="tipo-viz"]:checked')?.value === 'categorico';
+      if (cat) atualizarCatCores(this.value);
+      atualizarLegLabels();
+    });
+
+    document.querySelectorAll('input[name="tipo-viz"]').forEach(r =>
+      r.addEventListener('change', () => atualizarLegLabels())
+    );
+
+    function atualizarLegLabels() {
+      const tipoViz = document.querySelector('input[name="tipo-viz"]:checked')?.value;
+      const col     = document.getElementById('sel-col-num').value;
+      const wrap    = document.getElementById('wrap-leg-labels');
+      const lista   = document.getElementById('leg-labels-lista');
+
+      // Só mostra para categórico com coluna selecionada
+      if (tipoViz !== 'categorico' || !col || !valoresUnicos[col]) {
+        wrap.style.display = 'none';
+        lista.innerHTML = '';
+        return;
+      }
+
+      const vals = valoresUnicos[col];
+      lista.innerHTML = '';
+      vals.forEach(v => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:6px';
+        row.innerHTML = `
+          <span style="flex:0 0 auto;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+                       font-size:11px;color:#5a6474;border:1px solid #dde3ec;border-radius:4px;
+                       padding:2px 6px;background:#f7f9fc" title="${v}">${v}</span>
+          <span style="flex:0 0 auto;color:#b0b8c9;font-size:13px">→</span>
+          <input type="text" class="form-control form-control-sm leg-label-input"
+                 data-orig="${v}" placeholder="${v}" style="flex:1;font-size:12px" />`;
+        lista.appendChild(row);
+      });
+      wrap.style.display = 'block';
+    }
+
+    // ── Collapsible sections ──────────────────────────────────────────────────────
+    function toggleSec(toggle) {
+      const wrap = toggle.closest('.sec-wrap');
+      const body = toggle.nextElementSibling;
+      wrap.classList.toggle('open');
+      body.classList.toggle('open');
+    }
+
+    // ── Alinhamento do Título ─────────────────────────────────────────────────────
+    document.querySelectorAll('input[name="titulo-ha"]').forEach(r => r.addEventListener('change', function () {
+      const xSlider = document.getElementById('rng-tx');
+      const xVal = document.getElementById('v-tx');
+      if (this.value === 'left') {
+        xSlider.value = 0.05;
+        xVal.textContent = '0.05';
+      } else if (this.value === 'center') {
+        xSlider.value = 0.5;
+        xVal.textContent = '0.50';
+      } else if (this.value === 'right') {
+        xSlider.value = 0.95;
+        xVal.textContent = '0.95';
+      }
+    }));
+
+    // ── Tipo de mapa (Figura vs HTML Interativo) ──────────────────────────────────
+    document.querySelectorAll('input[name="tipo-mapa"]').forEach(r => r.addEventListener('change', function () {
+      const isHtml = this.value === 'html';
+      document.getElementById('bloco-tile').style.display = isHtml ? '' : 'none';
+      document.getElementById('bloco-export-img').style.display = isHtml ? 'none' : '';
+      document.getElementById('bloco-export-html').style.display = isHtml ? '' : 'none';
+    }));
+
+    // ── Estado ────────────────────────────────────────────────────────────────────
+    let csvFile = null, metaCSV = null, _lastHtml = null;
+
+    // ── Upload ────────────────────────────────────────────────────────────────────
+    const inp = document.getElementById('inp-file');
+    const uz = document.getElementById('uz');
+    const fnLbl = document.getElementById('fn-label');
+    const btnRem = document.getElementById('btn-remover');
+
+    inp.addEventListener('change', () => { if (inp.files[0]) carregarArquivo(inp.files[0]); });
+    uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+    uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+    uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('drag'); if (e.dataTransfer.files[0]) carregarArquivo(e.dataTransfer.files[0]); });
+
+    // Drag-and-drop em qualquer lugar da tela
+    document.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); uz.classList.add('drag'); });
+    document.addEventListener('dragleave', e => { if (e.clientX === 0 && e.clientY === 0) uz.classList.remove('drag'); });
+    document.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation(); uz.classList.remove('drag');
+      if (e.dataTransfer && e.dataTransfer.files[0]) carregarArquivo(e.dataTransfer.files[0]);
+    });
+    btnRem.addEventListener('click', () => {
+      csvFile = null; metaCSV = null;
+      inp.value = ''; fnLbl.textContent = ''; btnRem.style.display = 'none';
+      document.getElementById('painel-analise').style.display = 'none';
+      toast('Arquivo removido.', 'info');
+    });
+
+    async function carregarArquivo(file, sheet_name) {
+      csvFile = file; fnLbl.textContent = file.name; btnRem.style.display = 'block';
+      toast('Lendo arquivo…', 'info');
+      const fd = new FormData(); fd.append('arquivo', file);
+      if (sheet_name) fd.append('sheet_name', sheet_name);
+      try {
+        const r = await fetch('/analisar-csv', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (d.erro) { toast(d.erro, 'err'); return; }
+        metaCSV = d;
+
+        // ── Seletor de abas ────────────────────────────────────────────────
+        const wrapAba = document.getElementById('wrap-aba');
+        const selAba  = document.getElementById('sel-aba');
+        if (d.abas && d.abas.length > 1) {
+          selAba.innerHTML = '';
+          d.abas.forEach(a => {
+            const o = document.createElement('option');
+            o.value = a; o.textContent = a;
+            if (a === d.aba_atual) o.selected = true;
+            selAba.appendChild(o);
+          });
+          wrapAba.style.display = 'block';
+        } else {
+          wrapAba.style.display = 'none';
+        }
+
+        popularPainel(d);
+        toast(`${d.total_linhas.toLocaleString('pt-BR')} linhas · ${d.colunas.length} colunas`, 'ok');
+        _tourNotify();
+      } catch (e) { toast('Erro: ' + e, 'err'); }
+    }
+
+    document.getElementById('sel-aba')?.addEventListener('change', function() {
+      if (csvFile) carregarArquivo(csvFile, this.value);
+    });
+
+    function popularPainel(d) {
+      document.getElementById('csv-stats').textContent = `${d.total_linhas.toLocaleString('pt-BR')} linhas · ${d.colunas.length} colunas`;
+      document.getElementById('csv-cols').textContent = 'Colunas: ' + d.colunas.join(', ');
+
+      const selGeo = document.getElementById('sel-col-geo');
+      selGeo.innerHTML = '<option value="">— selecione —</option>';
+      d.colunas.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if (c === d.col_geo) o.selected = true; selGeo.appendChild(o); });
+      selGeo.addEventListener('change', () => {
+        const vals = (metaCSV?.amostra || []).map(r => r[selGeo.value]).filter(Boolean).join(', ');
+        document.getElementById('preview-geo').textContent = vals ? `Ex: ${vals}` : '';
+      });
+
+      todasColunas = d.colunas;
+      colunasNumericas = d.numericas;
+      valoresUnicos = d.valores_unicos || {};
+      const tipoViz = document.querySelector('input[name="tipo-viz"]:checked')?.value || 'calorico';
+      const colsParaExibir = (tipoViz === 'categorico') ? todasColunas : colunasNumericas;
+      const selNum = document.getElementById('sel-col-num');
+      selNum.innerHTML = '<option value="">— selecione —</option>';
+      colsParaExibir.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selNum.appendChild(o); });
+
+      // Sempre inicia com Município selecionado
+      document.getElementById('nv-mun').checked = true;
+      atualizarFiltrosFoco('municipio');
+
+      document.getElementById('painel-analise').style.display = 'block';
+    }
+
+    // ── Nível → mostrar filtros geográficos e ajustar legenda ────────────────────
+    function atualizarFiltrosFoco(nivel) {
+      const fuEl = document.getElementById('sel-foco-uf');
+      const frEl = document.getElementById('sel-foco-reg');
+      const hintEl = document.getElementById('hint-foco');
+
+      // Esconde tudo e limpa antes de decidir o que mostrar
+      fuEl.style.display = 'none';
+      frEl.style.display = 'none';
+      hintEl.style.display = 'none';
+      fuEl.value = '';
+      frEl.value = '';
+
+      if (nivel === 'municipio') {
+        fuEl.style.display = 'block';
+        hintEl.style.display = 'block';
+        hintEl.textContent = 'Opcional: selecione um estado para mostrar só seus municípios.';
+      } else if (nivel === 'regiao') {
+        frEl.style.display = 'block';
+        hintEl.style.display = 'block';
+        hintEl.textContent = 'Opcional: selecione uma região para focar nela.';
+      }
+      // Estado (uf): sem filtro
+    }
+
+    document.querySelectorAll('input[name="nivel"]').forEach(r => r.addEventListener('change', function () {
+      atualizarFiltrosFoco(this.value);
+    }));
+
+    // ── Preview de legenda ────────────────────────────────────────────────────────
+    const CORES_PREV = ['#eff3ff', '#bdd7e7', '#6baed6', '#2171b5', '#084594'];
+
+    function _gradiente() { // barra contínua
+      return `<div style="height:14px;border-radius:4px;background:linear-gradient(to right,${CORES_PREV[0]},${CORES_PREV[4]});margin-bottom:4px"></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#78909c"><span>10</span><span>250</span><span>500</span><span>750</span><span>1000</span></div>`;
+    }
+    function _classificado(labels) { // caixas coloridas
+      return CORES_PREV.map((c, i) =>
+        `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+       <span style="width:16px;height:16px;background:${c};border-radius:3px;flex-shrink:0;border:1px solid #ccc"></span>
+       <span style="font-size:10px;color:#5a6474">${labels[i]}</span>
+     </div>`
+      ).join('');
+    }
+
+    const PREV_LEGENDA = {
+      'Contagem': {
+        visual: _classificado([
+          '412 municípios',
+          '837 municípios',
+          '1.024 municípios',
+          '623 municípios',
+          '214 municípios',
+        ]),
+        titulo: 'Contagem por cor ★ (padrão)',
+        desc: 'Cada cor do mapa mostra quantos municípios têm aquela cor. Você vê de imediato quantos lugares estão em cada nível, sem precisar interpretar intervalos de valores.',
+        quando: '✔ Recomendado para a maioria dos casos. Intuitivo e direto.',
+      },
+      'Contínua': {
+        visual: _gradiente(),
+        titulo: 'Barra de cor contínua',
+        desc: 'Mostra uma barra com gradiente de cores. Cada ponto da barra corresponde a um valor exato.',
+        quando: '✔ Use quando quiser mostrar a variação exata entre os valores.',
+      },
+      'Quantiles': {
+        visual: _classificado(['10 – 85 (20% menores)', '86 – 210', '211 – 430', '431 – 720', '721 – 1000 (20% maiores)']),
+        titulo: 'Quantis',
+        desc: 'Divide os dados em grupos com o mesmo número de municípios. Ex: 5 grupos → 20% dos municípios em cada cor.',
+        quando: '✔ Use quando quiser que todas as cores apareçam igualmente no mapa, independente dos valores.',
+      },
+      'Equal Interval': {
+        visual: _classificado(['10 – 208', '209 – 406', '407 – 604', '605 – 802', '803 – 1000']),
+        titulo: 'Intervalos Iguais',
+        desc: 'Divide o intervalo de valores em partes iguais. Se os dados vão de 10 a 1000, cada faixa tem 198 unidades.',
+        quando: '✔ Use quando os dados estiverem bem distribuídos e você quiser faixas de tamanho igual.',
+      },
+      'Natural Breaks': {
+        visual: _classificado(['10 – 45', '46 – 130', '131 – 320', '321 – 650', '651 – 1000']),
+        titulo: 'Natural Breaks (Jenks)',
+        desc: 'Encontra onde os dados "pulam" naturalmente e usa esses pontos como divisão. Os grupos refletem o comportamento real dos dados.',
+        quando: '✔ Use quando os dados tiverem agrupamentos naturais — é a opção mais precisa na maioria dos casos.',
+      },
+      'Sem legenda': {
+        visual: `<div style="text-align:center;padding:6px 0;font-size:22px;opacity:.3">🚫</div>`,
+        titulo: 'Sem legenda',
+        desc: 'O mapa é gerado sem legenda. Útil para mapas ilustrativos ou quando a legenda será adicionada depois.',
+        quando: '',
+      },
+    };
+
+    function atualizarPreviewLegenda(tipo) {
+      const info = PREV_LEGENDA[tipo] || PREV_LEGENDA['Contínua'];
+      document.getElementById('prev-leg-visual').innerHTML = info.visual;
+      document.getElementById('prev-leg-titulo').textContent = info.titulo;
+      document.getElementById('prev-leg-desc').textContent = info.desc;
+      document.getElementById('prev-leg-quando').textContent = info.quando;
+    }
+    // Inicializa com o valor padrão
+    atualizarPreviewLegenda('Sem legenda');
+
+    // ── Legenda ───────────────────────────────────────────────────────────────────
+    function toggleLegendaOpcoes(tipo) {
+      const sem = tipo === 'Sem legenda';
+      ['sel-orient-leg', 'sel-loc-leg', 'inp-titulo-leg', 'sel-fonte-leg', 'inp-tam-leg'].forEach(id => {
+        const el = document.getElementById(id);
+        el.disabled = sem;
+        el.closest('.fg').style.opacity = sem ? '0.4' : '1';
+      });
+      // Checkbox e wrapper de fonte/tam também
+      const chkLeg = document.getElementById('chk-titulo-leg-ativo');
+      if (chkLeg) { chkLeg.disabled = sem; chkLeg.parentElement.style.opacity = sem ? '0.4' : '1'; }
+      const wlf = document.getElementById('wrap-leg-fonte');
+      if (wlf) wlf.style.opacity = sem ? '0.4' : '1';
+    }
+    toggleLegendaOpcoes('Sem legenda');
+
+    // ── Coletar parâmetros ────────────────────────────────────────────────────────
+    function coletarParams(exportar = false) {
+      const fd = new FormData();
+      fd.append('exportar', exportar.toString());
+      fd.append('palette', document.getElementById('sel-paleta').value);
+      fd.append('show_mun', document.getElementById('chk-mun').checked.toString());
+      fd.append('esp_mun', document.getElementById('rng-mun').value);
+      fd.append('cor_mun', document.getElementById('cor-mun').value);
+      fd.append('show_uf', document.getElementById('chk-uf').checked.toString());
+      fd.append('esp_uf', document.getElementById('rng-uf').value);
+      fd.append('cor_uf', document.getElementById('cor-uf').value);
+      fd.append('show_reg', document.getElementById('chk-reg').checked.toString());
+      fd.append('esp_reg', document.getElementById('rng-reg').value);
+      fd.append('cor_reg', document.getElementById('cor-reg').value);
+      fd.append('sem_dado_hachura', document.getElementById('chk-sem-dado-hachura').checked.toString());
+      fd.append('cor_sem_dado', document.getElementById('cor-sem-dado').value);
+      fd.append('cor_hachura', document.getElementById('cor-hachura').value);
+      fd.append('escala_cor', document.querySelector('input[name="escala-cor"]:checked')?.value || 'linear');
+      fd.append('tipo_viz', document.querySelector('input[name="tipo-viz"]:checked')?.value || 'calorico');
+      fd.append('titulo_ativo', document.getElementById('chk-titulo-ativo').checked.toString());
+      fd.append('titulo_texto', document.getElementById('inp-titulo').value || 'Mapa temático do Brasil');
+      fd.append('titulo_fonte', document.getElementById('sel-fonte').value);
+      fd.append('titulo_tam', document.getElementById('inp-tam-titulo').value);
+      fd.append('titulo_negrito', document.getElementById('chk-negrito').checked.toString());
+      fd.append('titulo_italico', document.getElementById('chk-italico').checked.toString());
+      fd.append('titulo_sublinhado', document.getElementById('chk-sublinhado').checked.toString());
+      fd.append('titulo_ha', document.querySelector('input[name="titulo-ha"]:checked')?.value || 'center');
+      fd.append('titulo_x', document.getElementById('rng-tx').value);
+      fd.append('titulo_y', document.getElementById('rng-ty').value);
+      fd.append('filtro_uf', document.getElementById('sel-foco-uf').value || '');
+      fd.append('filtro_regiao', document.getElementById('sel-foco-reg').value || '');
+      fd.append('tipo_legenda', document.getElementById('sel-tipo-leg').value);
+      fd.append('orient_leg', document.getElementById('sel-orient-leg').value);
+      fd.append('loc_leg', document.getElementById('sel-loc-leg').value);
+      const _selAba = document.getElementById('sel-aba');
+      if (_selAba && document.getElementById('wrap-aba').style.display !== 'none')
+        fd.append('sheet_name', _selAba.value);
+      fd.append('k_legenda', document.getElementById('inp-k-leg').value);
+      const _legLabels = {};
+      document.querySelectorAll('.leg-label-input').forEach(inp => {
+        const v = inp.value.trim();
+        if (v && v !== inp.getAttribute('data-orig')) _legLabels[inp.getAttribute('data-orig')] = v;
+      });
+      fd.append('leg_labels', JSON.stringify(_legLabels));
+      fd.append('titulo_leg_ativo', document.getElementById('chk-titulo-leg-ativo').checked.toString());
+      fd.append('titulo_leg', document.getElementById('inp-titulo-leg').value || '');
+      fd.append('leg_fonte', document.getElementById('sel-fonte-leg').value);
+      fd.append('leg_tam', document.getElementById('inp-tam-leg').value);
+      const catRows = document.querySelectorAll('#cat-lista .cat-row');
+      if (catRows.length > 0) {
+        const catCores = {};
+        catRows.forEach(row => { catCores[row.dataset.cat] = row.querySelector('input[type="color"]').value; });
+        fd.append('cat_cores', JSON.stringify(catCores));
+      } else {
+        fd.append('cat_cores', '{}');
+      }
+      return fd;
+    }
+
+    // ── Gerar / Exportar ──────────────────────────────────────────────────────────
+    async function gerarMapa() {
+      const btn = document.getElementById('btn-gerar');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Gerando…';
+      document.getElementById('ph').style.display = 'none';
+      document.getElementById('map-img').style.display = 'none';
+      document.getElementById('map-iframe').style.display = 'none';
+      document.getElementById('ov').classList.add('show');
+      document.getElementById('ov-msg').textContent = 'Gerando mapa…';
+
+      const tipoMapa = document.querySelector('input[name="tipo-mapa"]:checked')?.value || 'figura';
+
+      try {
+        if (!csvFile) { toast('Carregue um arquivo CSV primeiro.', 'err'); return; }
+        const col_geo = document.getElementById('sel-col-geo').value;
+        if (!col_geo) { toast('Selecione a coluna Código IBGE (Passo 2).', 'err'); return; }
+        const col_valor = document.getElementById('sel-col-num').value;
+        if (!col_valor) { toast('Selecione o que deseja visualizar no mapa (Passo 4).', 'err'); return; }
+
+        const fd = coletarParams(false);
+        fd.append('arquivo', csvFile);
+        fd.append('nivel', document.querySelector('input[name="nivel"]:checked').value);
+        fd.append('col_geo', col_geo);
+        fd.append('col_valor', col_valor);
+        fd.append('agregacao', document.getElementById('sel-agr').value);
+
+        if (tipoMapa === 'html') {
+          fd.append('tile_layer', document.querySelector('input[name="tile-layer"]:checked')?.value || 'urbano');
+          const r = await fetch('/gerar-mapa-html', { method: 'POST', body: fd });
+          const d = await r.json();
+          if (d.erro) { toast('Erro: ' + d.erro, 'err'); document.getElementById('ph').style.display = 'flex'; return; }
+          _lastHtml = d.html;
+          const iframe = document.getElementById('map-iframe');
+          iframe.style.display = 'block';
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          doc.open(); doc.write(d.html); doc.close();
+          exibirAvisos(null);
+          toast('Mapa interativo gerado!', 'ok');
+          _tourNotify();
+        } else {
+          const r = await fetch('/gerar-mapa', { method: 'POST', body: fd });
+          const d = await r.json();
+          if (d.erro) { toast('Erro: ' + d.erro, 'err'); document.getElementById('ph').style.display = 'flex'; return; }
+          const img = document.getElementById('map-img');
+          img.src = d.imagem; img.style.display = 'block'; img.classList.remove('zoomed');
+          _lastHtml = null;
+          exibirAvisos(d.avisos);
+          toast('Mapa gerado!', 'ok');
+          _tourNotify();
+        }
+      } catch (e) {
+        toast('Erro de conexão: ' + e, 'err');
+        document.getElementById('ph').style.display = 'flex';
+      } finally {
+        document.getElementById('ov').classList.remove('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-map-fill"></i> Gerar Mapa';
+      }
+    }
+
+    function exportarHTML() {
+      if (!_lastHtml) { toast('Gere o mapa HTML primeiro.', 'err'); return; }
+      const blob = new Blob([_lastHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'mapa_cnm.html'; a.click();
+      URL.revokeObjectURL(url);
+      toast('HTML exportado!', 'ok');
+    }
+
+    async function exportarPNG() {
+      const img = document.getElementById('map-img');
+      if (!img.src || img.style.display === 'none') { toast('Gere o mapa primeiro.', 'err'); return; }
+      const btn = document.getElementById('btn-export');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Exportando…';
+      document.getElementById('ov').classList.add('show');
+      document.getElementById('ov-msg').textContent = 'Gerando PNG em 300 dpi…';
+      try {
+        const fd = coletarParams(true);
+        fd.append('arquivo', csvFile);
+        fd.append('nivel', document.querySelector('input[name="nivel"]:checked').value);
+        fd.append('col_geo', document.getElementById('sel-col-geo').value);
+        fd.append('col_valor', document.getElementById('sel-col-num').value);
+        fd.append('agregacao', document.getElementById('sel-agr').value);
+        fd.append('formato_export', 'png');
+        const r = await fetch('/gerar-mapa', { method: 'POST', body: fd });
+        if (!r.ok) { const j = await r.json(); toast('Erro: ' + j.erro, 'err'); return; }
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'mapa_cnm.png'; a.click();
+        URL.revokeObjectURL(url);
+        toast('PNG exportado com sucesso!', 'ok');
+      } catch (e) { toast('Erro: ' + e, 'err'); }
+      finally {
+        document.getElementById('ov').classList.remove('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-download"></i> Exportar PNG (300 dpi)';
+      }
+    }
+
+    async function exportarSVG() {
+      const img = document.getElementById('map-img');
+      if (!img.src || img.style.display === 'none') { toast('Gere o mapa primeiro.', 'err'); return; }
+      const btn = document.getElementById('btn-export-svg');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Exportando…';
+      document.getElementById('ov').classList.add('show');
+      document.getElementById('ov-msg').textContent = 'Gerando SVG vetorial…';
+      try {
+        const fd = coletarParams(true);
+        fd.append('arquivo', csvFile);
+        fd.append('nivel', document.querySelector('input[name="nivel"]:checked').value);
+        fd.append('col_geo', document.getElementById('sel-col-geo').value);
+        fd.append('col_valor', document.getElementById('sel-col-num').value);
+        fd.append('agregacao', document.getElementById('sel-agr').value);
+        fd.append('formato_export', 'svg');
+        const r = await fetch('/gerar-mapa', { method: 'POST', body: fd });
+        if (!r.ok) { const j = await r.json(); toast('Erro: ' + j.erro, 'err'); return; }
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'mapa_cnm.svg'; a.click();
+        URL.revokeObjectURL(url);
+        toast('SVG exportado com sucesso!', 'ok');
+      } catch (e) { toast('Erro: ' + e, 'err'); }
+      finally {
+        document.getElementById('ov').classList.remove('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-filetype-svg"></i> Exportar SVG (vetorial)';
+      }
+    }
+
+    function toggleZoom(img) { img.classList.toggle('zoomed'); }
+
+    // ── Painel de avisos ──────────────────────────────────────────────────────────
+    function exibirAvisos(avisos) {
+      const panel = document.getElementById('avisos-panel');
+      if (!avisos || (!avisos.sem_match?.length && !avisos.sem_dado)) {
+        panel.style.display = 'none'; panel.innerHTML = ''; return;
+      }
+      let html = '';
+      if (avisos.sem_match?.length) {
+        const total = avisos.sem_match.length;
+        const mostrar = avisos.sem_match.slice(0, 20);
+        const resto = total - mostrar.length;
+        html += `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;margin-bottom:8px">
+          <div style="font-weight:700;color:#e65100;margin-bottom:5px">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            ${total} código${total > 1 ? 's' : ''} não encontrado${total > 1 ? 's' : ''} no shapefile
+          </div>
+          <div style="color:#5a4000;line-height:1.7">
+            Esses valores da coluna IBGE não correspondem a nenhuma área do nível selecionado.
+            Verifique se o código está correto e se o nível geográfico bate com seus dados.<br>
+            <span style="font-family:monospace;font-size:11px;word-break:break-all">${mostrar.join(', ')}${resto > 0 ? ` <b>e mais ${resto}…</b>` : ''}</span>
+          </div>
+        </div>`;
+      }
+      if (avisos.sem_dado?.length) {
+        const total = avisos.sem_dado.length;
+        const mostrar = avisos.sem_dado.slice(0, 30);
+        const resto = total - mostrar.length;
+        html += `<div style="background:#e8f4fd;border:1px solid #90caf9;border-radius:8px;padding:10px 14px">
+          <div style="font-weight:700;color:#1565c0;margin-bottom:5px">
+            <i class="bi bi-info-circle-fill me-1"></i>
+            ${total} área${total > 1 ? 's' : ''} sem dado na planilha — aparecem em cinza no mapa
+          </div>
+          <div style="color:#2d4070;line-height:1.7">
+            <span style="font-size:11px">${mostrar.join(', ')}${resto > 0 ? ` <b>e mais ${resto}…</b>` : ''}</span>
+          </div>
+        </div>`;
+      }
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+    }
+
+    // ── Help system ───────────────────────────────────────────────────────────────
+    function toggleHelp(id) {
+      const box = document.getElementById(id);
+      const show = box.classList.toggle('show');
+      const btn = document.querySelector(`[data-help="${id}"]`);
+      if (btn) btn.classList.toggle('active', show);
+    }
+    function openCsvHelp() { document.getElementById('csv-help-modal').classList.add('show'); }
+    function closeCsvHelp() { document.getElementById('csv-help-modal').classList.remove('show'); }
+    function openCalcHelp() { document.getElementById('calc-help-modal').classList.add('show'); }
+    function closeCalcHelp() { document.getElementById('calc-help-modal').classList.remove('show'); }
+    function openVizHelp() { document.getElementById('viz-help-modal').classList.add('show'); }
+    function closeVizHelp() { document.getElementById('viz-help-modal').classList.remove('show'); }
+    function openEscalaHelp() { document.getElementById('escala-help-modal').classList.add('show'); }
+    function closeEscalaHelp() { document.getElementById('escala-help-modal').classList.remove('show'); }
+    function openPaletaHelp() { document.getElementById('paleta-help-modal').classList.add('show'); }
+    function closePaletaHelp() { document.getElementById('paleta-help-modal').classList.remove('show'); }
+    function openColHelp() { document.getElementById('col-help-modal').classList.add('show'); }
+    function closeColHelp() { document.getElementById('col-help-modal').classList.remove('show'); }
+    // ── Toast ─────────────────────────────────────────────────────────────────────
+    function toast(msg, type = 'ok') {
+      const c = document.getElementById('tc');
+      const d = document.createElement('div');
+      d.className = 'tm ' + type; d.textContent = msg; c.appendChild(d);
+      setTimeout(() => d.remove(), 3800);
+    }
+
+    // ── Tour interativo ───────────────────────────────────────────────────────────
+    const TOUR_STEPS = [
+      {
+        target: '#uz',
+        title: '📂 Passo 1 — Carregar arquivo',
+        text: 'Arraste ou clique aqui para selecionar seu arquivo CSV ou Excel.\n\nEle precisa ter pelo menos uma coluna com código IBGE e outra com os valores que deseja mapear.',
+        position: 'right',
+        condition: () => csvFile !== null,
+        events: [{ sel: '#inp-file', ev: 'change' }],
+        waitMsg: 'Carregue seu arquivo para continuar',
+        doneMsg: 'Arquivo carregado! ✓'
+      },
+      {
+        target: '#fg-nivel',
+        title: '🗺️ Passo 2 — Nível geográfico',
+        text: 'Escolha o nível do mapa:\n• Município — coloriza cada um dos 5.570 municípios\n• Estado — coloriza os 27 estados\n• Região — coloriza as 5 regiões do Brasil\n\nClique em um dos botões para confirmar.',
+        position: 'right',
+        condition: () => _nivelClicked,
+        events: [
+          { sel: '#nv-mun', ev: 'click' },
+          { sel: '#nv-uf',  ev: 'click' },
+          { sel: '#nv-reg', ev: 'click' }
+        ],
+        onEvent: () => { _nivelClicked = true; },
+        waitMsg: 'Clique em Município, Estado ou Região para continuar',
+        doneMsg: 'Nível geográfico selecionado! ✓'
+      },
+      {
+        target: '#fg-foco',
+        title: '🔎 Passo 3 — Recortar por estado/região',
+        text: 'Funcionalidade opcional!\n\nSe seus dados são de um estado específico, filtre o mapa para exibir apenas aquele estado ou região.\n\nDeixe em branco para exibir o Brasil completo.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Recurso opcional — clique em Próximo →'
+      },
+      {
+        target: '#sel-col-geo',
+        title: '🔑 Passo 4 — Coluna IBGE',
+        text: 'Selecione a coluna da planilha que contém o código IBGE:\n• 7 dígitos para município (ex: 3550308)\n• 2 dígitos para estado (ex: 35)\n\nÉ ela que conecta seus dados ao mapa.',
+        position: 'right',
+        condition: () => (document.getElementById('sel-col-geo')?.value || '') !== '',
+        events: [{ sel: '#sel-col-geo', ev: 'change' }],
+        waitMsg: 'Selecione a coluna IBGE para continuar',
+        doneMsg: 'Coluna IBGE selecionada! ✓'
+      },
+      {
+        target: '#sel-agr',
+        title: '🧮 Passo 5 — Tipo de cálculo',
+        text: 'Quando há várias linhas para o mesmo município, como calcular o valor final?\n\n• Soma — soma todos os valores\n• Média — calcula a média\n• Máximo / Mínimo — pega o extremo\n• Contagem — conta as linhas\n\nPara dados únicos por município, use Soma.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →'
+      },
+      {
+        target: '#sel-col-num',
+        title: '📊 Passo 6 — O que visualizar',
+        text: 'Escolha qual coluna de dados será representada pelas cores do mapa.\n\nEx: população, receita, quantidade de ocorrências…',
+        position: 'right',
+        condition: () => (document.getElementById('sel-col-num')?.value || '') !== '',
+        events: [{ sel: '#sel-col-num', ev: 'change' }],
+        waitMsg: 'Selecione a coluna de valores para continuar',
+        doneMsg: 'Coluna de valores selecionada! ✓'
+      },
+      {
+        target: '#fg-viz',
+        title: '🎨 Passo 7 — Tipo de visualização',
+        text: 'Escolha como os dados serão representados:\n\n• Calor — degradê de cores para valores numéricos\n• Categórico — uma cor diferente por categoria (ex: sim/não, 0/1, nomes)',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →'
+      },
+      {
+        target: '#bloco-paleta',
+        title: '🌈 Passo 8 — Paleta de cores',
+        text: 'Escolha o esquema de cores e a distribuição:\n\n• Linear — escala uniforme entre min e max\n• Proporcional — destaca diferenças relativas\n• Log — útil quando há valores extremos\n\nExplore as opções para encontrar a melhor visualização.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →'
+      },
+      {
+        target: '#sec-linhas',
+        title: '✏️ Passo 9 — Estilos de Linha',
+        text: 'Controle as bordas desenhadas sobre o mapa:\n\n• Municípios — borda entre cada município\n• Estados — borda entre estados\n• Regiões — borda entre regiões\n\nAjuste espessura e cor, ou desmarque para ocultar cada borda.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →',
+        onEnter: () => {
+          const wrap = document.getElementById('sec-linhas');
+          if (wrap && !wrap.classList.contains('open')) {
+            const body = wrap.querySelector('.sec-body');
+            wrap.classList.add('open');
+            if (body) body.classList.add('open');
+          }
+        }
+      },
+      {
+        target: '#sec-legenda',
+        title: '📋 Passo 10 — Legenda',
+        text: 'Configure como a legenda aparece no mapa:\n\n• Tipo — Contínua, Classificada ou Sem legenda\n• Classes — número de faixas de cor\n• Posição — onde a legenda será posicionada\n• Título — texto que aparece sobre a legenda',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →',
+        onEnter: () => {
+          const wrap = document.getElementById('sec-legenda');
+          if (wrap && !wrap.classList.contains('open')) {
+            const body = wrap.querySelector('.sec-body');
+            wrap.classList.add('open');
+            if (body) body.classList.add('open');
+          }
+        }
+      },
+      {
+        target: '#sec-titulo',
+        title: '🔤 Passo 11 — Título do Mapa',
+        text: 'Adicione um título ao mapa:\n\n• Texto — o título que aparecerá acima do mapa\n• Fonte, tamanho, negrito, itálico\n• Alinhamento e posição (X/Y)\n\nDeixe em branco para gerar o mapa sem título.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →',
+        onEnter: () => {
+          const wrap = document.getElementById('sec-titulo');
+          if (wrap && !wrap.classList.contains('open')) {
+            const body = wrap.querySelector('.sec-body');
+            wrap.classList.add('open');
+            if (body) body.classList.add('open');
+          }
+        }
+      },
+      {
+        target: '#bloco-saida',
+        title: '💾 Passo 12 — Tipo de saída',
+        text: 'Escolha o formato do mapa gerado:\n\n• Figura — imagem PNG/SVG de alta qualidade para relatórios e apresentações\n• HTML Interativo — mapa navegável no navegador com zoom e informações ao passar o mouse (fundo Urbano ou Satélite)',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →'
+      },
+      {
+        target: '#btn-gerar',
+        title: '🚀 Passo 13 — Gerar o mapa!',
+        text: 'Tudo configurado!\n\nClique no botão "Gerar Mapa" para criar seu mapa com todas as configurações escolhidas.',
+        position: 'right',
+        condition: () => {
+          const img = document.getElementById('map-img');
+          const ifr = document.getElementById('map-iframe');
+          return (img && img.src && img.style.display !== 'none') ||
+                 (ifr && ifr.style.display !== 'none');
+        },
+        events: [],
+        waitMsg: 'Clique em "Gerar Mapa" para concluir',
+        doneMsg: 'Mapa gerado! Tutorial concluído 🎉'
+      }
+    ];
+
+    let _tourStep = 0, _tourActive = false, _tourListeners = [], _nivelClicked = false,
+        _readDelayActive = false, _readDelayTimer = null;
+
+    function initTour(forceShow) {
+      if (!forceShow && localStorage.getItem('cnm_tour_skip') === '1') return;
+      setTimeout(() => document.getElementById('tour-welcome').classList.add('show'), forceShow ? 0 : 600);
+    }
+
+    function closeTourWelcome() {
+      if (document.getElementById('tw-no-show').checked)
+        localStorage.setItem('cnm_tour_skip', '1');
+      document.getElementById('tour-welcome').classList.remove('show');
+    }
+
+    function startTour() {
+      if (document.getElementById('tw-no-show').checked)
+        localStorage.setItem('cnm_tour_skip', '1');
+      document.getElementById('tour-welcome').classList.remove('show');
+      _tourStep = 0; _tourActive = true; _nivelClicked = false;
+      _readDelayActive = false;
+      if (_readDelayTimer) { clearTimeout(_readDelayTimer); _readDelayTimer = null; }
+      buildTourDots();
+      showTourStep(0);
+    }
+
+    function buildTourDots() {
+      const c = document.getElementById('tour-dots'); c.innerHTML = '';
+      TOUR_STEPS.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'tw-dot'; d.id = 'tdot-' + i; c.appendChild(d);
+      });
+    }
+
+    function isElVisible(el) {
+      if (!el) return false;
+      let cur = el;
+      while (cur && cur !== document.body) {
+        if (window.getComputedStyle(cur).display === 'none') return false;
+        cur = cur.parentElement;
+      }
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      return r.bottom > 0 && r.top < window.innerHeight &&
+             r.right  > 0 && r.left < window.innerWidth;
+    }
+
+    function _scrollToTarget(el) {
+      const sbBody = document.querySelector('.sb-body');
+      if (!sbBody || !sbBody.contains(el)) return;
+      // scrollIntoView on the sbBody scroll container
+      const sbRect = sbBody.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const offset = sbBody.scrollTop + (elRect.top - sbRect.top)
+                   - (sbBody.clientHeight / 2) + (elRect.height / 2);
+      sbBody.scrollTop = Math.max(0, offset);
+    }
+
+    function showTourStep(idx) {
+      const step = TOUR_STEPS[idx], total = TOUR_STEPS.length;
+      _tourListeners.forEach(({ el, ev, fn }) => el && el.removeEventListener(ev, fn));
+      _tourListeners = [];
+
+      // Hide everything immediately during transition
+      const tt = document.getElementById('tour-tooltip');
+      const hl = document.getElementById('tour-highlight');
+      tt.classList.remove('show');
+      hl.classList.remove('show');
+      ['tour-bl-top','tour-bl-bottom','tour-bl-left','tour-bl-right']
+        .forEach(id => document.getElementById(id).classList.remove('show'));
+
+      // Update tooltip content
+      document.getElementById('tour-tt-count').textContent = `Passo ${idx + 1} de ${total}`;
+      document.getElementById('tour-tt-title').textContent = step.title;
+      document.getElementById('tour-tt-text').textContent  = step.text;
+      document.getElementById('tour-btn-prev').style.display = idx === 0 ? 'none' : '';
+      document.querySelectorAll('.tw-dot').forEach((d, i) => d.classList.toggle('active', i <= idx));
+
+      // Clear any previous read-delay timer
+      if (_readDelayTimer) { clearTimeout(_readDelayTimer); _readDelayTimer = null; }
+      _readDelayActive = false;
+
+      // For info steps: lock Next button briefly so user reads the content
+      const btn = document.getElementById('tour-btn-next');
+      if (step.readDelay) {
+        _readDelayActive = true;
+        btn.disabled = true;
+        btn.textContent = '⏳ Leia…';
+        _readDelayTimer = setTimeout(() => {
+          _readDelayActive = false;
+          _readDelayTimer = null;
+          _tourCheckCondition();
+        }, step.readDelay);
+      } else {
+        _tourCheckCondition();
+      }
+
+      step.events.forEach(({ sel, ev }) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const fn = () => { if (step.onEvent) step.onEvent(); _tourCheckCondition(); };
+        el.addEventListener(ev, fn);
+        _tourListeners.push({ el, ev, fn });
+      });
+
+      // Expand collapsible section if needed before positioning
+      if (step.onEnter) step.onEnter();
+
+      const targetEl = document.querySelector(step.target);
+      _scrollToTarget(targetEl);
+
+      // Wait for scroll to commit, then position and reveal
+      setTimeout(() => {
+        positionTourElements(targetEl, step.position);
+        tt.classList.add('show');
+      }, 300);
+    }
+
+    function positionTourElements(targetEl, pos) {
+      const hl = document.getElementById('tour-highlight');
+      const BL = ['tour-bl-top','tour-bl-bottom','tour-bl-left','tour-bl-right'];
+      if (targetEl && isElVisible(targetEl)) {
+        const rect = targetEl.getBoundingClientRect(), pad = 7;
+        const r = {
+          l: Math.max(0, rect.left - pad), t: Math.max(0, rect.top - pad),
+          r: Math.min(window.innerWidth, rect.right + pad),
+          b: Math.min(window.innerHeight, rect.bottom + pad)
+        };
+        hl.style.cssText = `left:${r.l}px;top:${r.t}px;width:${r.r-r.l}px;height:${r.b-r.t}px`;
+        hl.classList.add('show');
+        _setBlocker('tour-bl-top',    0,   0,   window.innerWidth,          r.t);
+        _setBlocker('tour-bl-bottom', 0,   r.b, window.innerWidth,          window.innerHeight - r.b);
+        _setBlocker('tour-bl-left',   0,   r.t, r.l,                        r.b - r.t);
+        _setBlocker('tour-bl-right',  r.r, r.t, window.innerWidth - r.r,    r.b - r.t);
+        BL.forEach(id => document.getElementById(id).classList.add('show'));
+        positionTooltip(rect, pos);
+        document.getElementById('tour-tooltip').style.transform = '';
+      } else {
+        hl.classList.remove('show');
+        BL.forEach(id => document.getElementById(id).classList.remove('show'));
+        const tt = document.getElementById('tour-tooltip');
+        tt.style.left = '50%'; tt.style.top = '50%';
+        tt.style.transform = 'translate(-50%,-50%)';
+      }
+    }
+
+    function _setBlocker(id, l, t, w, h) {
+      const el = document.getElementById(id);
+      el.style.left = l+'px'; el.style.top = t+'px';
+      el.style.width = w+'px'; el.style.height = h+'px';
+    }
+
+    function positionTooltip(rect, pos) {
+      const tt = document.getElementById('tour-tooltip');
+      tt.style.transform = '';
+      // Use actual rendered height so long texts don't get clipped
+      const ttW = 320, ttH = tt.offsetHeight || 320, gap = 18, mg = 12;
+      let left = rect.right + gap, top = rect.top + rect.height / 2 - ttH / 2;
+      if (pos === 'bottom') { left = rect.left + rect.width/2 - ttW/2; top = rect.bottom + gap; }
+      if (pos === 'top')    { left = rect.left + rect.width/2 - ttW/2; top = rect.top - ttH - gap; }
+      if (left + ttW > window.innerWidth - mg) left = rect.left - ttW - gap;
+      left = Math.max(mg, Math.min(left, window.innerWidth  - ttW - mg));
+      top  = Math.max(mg, Math.min(top,  window.innerHeight - ttH - mg));
+      tt.style.left = left+'px'; tt.style.top = top+'px';
+    }
+
+    function _tourCheckCondition() {
+      if (!_tourActive || _readDelayActive) return;
+      const step = TOUR_STEPS[_tourStep];
+      const done = step.condition();
+      const btn  = document.getElementById('tour-btn-next');
+      const isLast = _tourStep === TOUR_STEPS.length - 1;
+      btn.disabled    = !done;
+      btn.textContent = isLast ? (done ? 'Concluir ✓' : 'Aguardando…') : 'Próximo →';
+      const st = document.getElementById('tour-tt-status');
+      document.getElementById('tour-tt-status-icon').textContent = done ? '✅' : '⏳';
+      document.getElementById('tour-tt-status-text').textContent = done ? step.doneMsg : step.waitMsg;
+      st.className = 'tour-tt-status ' + (done ? 'done' : 'waiting');
+    }
+
+    function _tourNotify() { if (_tourActive) _tourCheckCondition(); }
+
+    function tourNext() {
+      if (!TOUR_STEPS[_tourStep].condition()) return;
+      if (_tourStep < TOUR_STEPS.length - 1) { _tourStep++; showTourStep(_tourStep); }
+      else { endTour(); toast('Tutorial concluído! Agora você já sabe usar o sistema. 🎉', 'ok'); }
+    }
+
+    function tourPrev() {
+      if (_tourStep > 0) { _tourStep--; showTourStep(_tourStep); }
+    }
+
+    function endTour() {
+      _tourActive = false;
+      _readDelayActive = false;
+      if (_readDelayTimer) { clearTimeout(_readDelayTimer); _readDelayTimer = null; }
+      _tourListeners.forEach(({ el, ev, fn }) => el && el.removeEventListener(ev, fn));
+      _tourListeners = [];
+      ['tour-bl-top','tour-bl-bottom','tour-bl-left','tour-bl-right'].forEach(id =>
+        document.getElementById(id).classList.remove('show'));
+      document.getElementById('tour-highlight').classList.remove('show');
+      document.getElementById('tour-tooltip').classList.remove('show');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeCsvHelp(); closeCalcHelp(); closeVizHelp();
+        closeEscalaHelp(); closePaletaHelp(); closeColHelp();
+        endTour();
+        document.getElementById('tour-welcome').classList.remove('show');
+      }
+    });
+
+    window.addEventListener('load', () => initTour(false));
+  </script>
+</body>
+
+<!-- ═══════ MODAL AJUDA CSV ═══════ -->
+<div id="csv-help-modal">
+  <div class="csv-mbox">
+    <div class="csv-mhd">
+      <h6><i class="bi bi-file-earmark-spreadsheet me-2"></i>Como montar sua planilha</h6>
+      <button class="csv-mclose" onclick="closeCsvHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+      <p style="font-size:13px;color:#1a2744;font-weight:600;margin-bottom:12px">
+        Sua planilha precisa ter pelo menos <b>2 colunas</b>:
+      </p>
+
+      <div style="background:#eef3fc;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div
+          style="font-size:11px;font-weight:700;color:#003DA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+          <i class="bi bi-check-circle-fill me-1"></i>Colunas necessárias
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:#1a2744">1. Código IBGE</div>
+          <div style="font-size:11px;color:#5a6474;margin-top:3px;line-height:1.6">
+            Código numérico que identifica a área geográfica:<br>
+            &bull; <b>7 dígitos</b> → município &nbsp;<code
+              style="background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #dde3ec">5300108</code>
+            (Brasília)
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a2744">2. Coluna de dados a plotar</div>
+          <div style="font-size:11px;color:#5a6474;margin-top:3px;line-height:1.6">
+            Qualquer coluna <b>numérica</b> ou <b>categórica</b> que deseja visualizar no mapa<br>
+            (ex: população, receita, índice, quantidade, filiado, porte).
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+        <i class="bi bi-table me-1"></i>Exemplo de planilha válida
+      </div>
+      <div style="overflow-x:auto;border-radius:6px;border:1px solid #dde3ec;margin-bottom:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>cod_ibge</th>
+              <th>municipio</th>
+              <th>populacao</th>
+              <th>porte</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>5300108</td>
+              <td>Brasília</td>
+              <td>3015268</td>
+              <td>Grande</td>
+            </tr>
+            <tr>
+              <td>3550308</td>
+              <td>São Paulo</td>
+              <td>12396372</td>
+              <td>Pequeno</td>
+            </tr>
+            <tr>
+              <td>3304557</td>
+              <td>Rio de Janeiro</td>
+              <td>6747815</td>
+              <td>Grande</td>
+            </tr>
+            <tr>
+              <td>1302603</td>
+              <td>Manaus</td>
+              <td>2219580</td>
+              <td>Médio</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background:#fff8e1;border-radius:8px;border:1px solid #ffe082;padding:10px 14px">
+        <div
+          style="font-size:11px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+          <i class="bi bi-lightbulb-fill me-1"></i>Dicas importantes
+        </div>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          📋 Código IBGE</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0 0 10px;padding-left:16px;line-height:1.8">
+          <li>O nome da coluna de código IBGE pode ser qualquer um</li>
+          <li>A coluna de código IBGE deve conter <b>apenas números</b></li>
+        </ul>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          📁 Arquivo</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0 0 10px;padding-left:16px;line-height:1.8">
+          <li>Aceita <b>.csv</b>, <b>.xlsx</b>, <b>.xls</b> e <b>.xlsm</b></li>
+          <li>Para CSV, use vírgula <b>(,)</b> ou ponto-e-vírgula <b>(;)</b> como separador</li>
+        </ul>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          🔢 Dados e agregação</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0;padding-left:16px;line-height:1.8">
+          <li>Pode ter várias linhas por município — elas serão <b>agregadas</b> (soma, média, etc.)</li>
+          <li>Municípios sem dado aparecem em <b>cinza</b> no mapa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL AJUDA TIPO DE CÁLCULO ═══════ -->
+<div id="calc-help-modal">
+  <div class="csv-mbox">
+    <div class="csv-mhd" style="background:var(--blue-dk)">
+      <h6><i class="bi bi-calculator me-2"></i>Entendendo os Tipos de Cálculo</h6>
+      <button class="csv-mclose" onclick="closeCalcHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+      <p style="font-size:13px;color:#1a2744;font-weight:600;margin-bottom:12px">
+        Estes cálculos são usados quando a sua planilha possui <b>várias linhas para o mesmo local</b>. O sistema
+        precisa saber como juntar esses valores em um só para colorir o mapa.
+      </p>
+
+      <div
+        style="background:#eef3fc;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;gap:15px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;font-weight:700;color:#003DA5;margin-bottom:6px"><i
+              class="bi bi-plus-circle me-1"></i>Soma (Total)</div>
+          <div style="font-size:11px;color:#5a6474;line-height:1.6">
+            Soma todos os valores numéricos encontrados para o mesmo local.
+            <br><b>Exemplo de uso:</b> Você tem uma planilha com a receita de várias empresas por município e deseja
+            mostrar a receita <b>total</b> daquele município.
+          </div>
+        </div>
+        <div
+          style="background:#fff;border:1px solid #c8d9f9;padding:8px 12px;border-radius:6px;font-size:10px;text-align:center;min-width:140px;box-shadow:0 2px 4px rgba(0,0,0,0.03)">
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Empresa A</span><span>R$ 10</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Empresa B</span><span>R$ 15</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;color:#003DA5;font-weight:800;margin-top:6px;font-size:11px">
+            <span>Resultado</span><span>R$ 25</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="background:#e8f5e9;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;gap:15px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px"><i
+              class="bi bi-slash-circle me-1"></i>Média</div>
+          <div style="font-size:11px;color:#5a6474;line-height:1.6">
+            Calcula a média aritmética dos valores de um mesmo local.
+            <br><b>Exemplo de uso:</b> Sua planilha contém a nota do IDEB de várias escolas da mesma cidade, e você quer
+            colorir o mapa pela <b>nota média</b> das escolas.
+          </div>
+        </div>
+        <div
+          style="background:#fff;border:1px solid #c8e6c9;padding:8px 12px;border-radius:6px;font-size:10px;text-align:center;min-width:140px;box-shadow:0 2px 4px rgba(0,0,0,0.03)">
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Escola 1</span><span>Nota 6.0</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Escola 2</span><span>Nota 8.0</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;color:#2e7d32;font-weight:800;margin-top:6px;font-size:11px">
+            <span>Resultado</span><span>Nota 7.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="background:#fff3e0;border-radius:8px;padding:12px 14px;margin-bottom:14px;display:flex;gap:15px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;font-weight:700;color:#e65100;margin-bottom:6px"><i
+              class="bi bi-arrow-up-circle me-1"></i>Máximo e Mínimo</div>
+          <div style="font-size:11px;color:#5a6474;line-height:1.6">
+            Pega apenas o maior ou o menor valor encontrado.
+            <br><b>Exemplo de uso:</b> Você tem as temperaturas diárias de um mês inteiro para um município, e deseja
+            exibir o <b>pico de calor</b> (máximo) do mês.
+          </div>
+        </div>
+        <div
+          style="background:#fff;border:1px solid #ffe0b2;padding:8px 12px;border-radius:6px;font-size:10px;text-align:center;min-width:140px;box-shadow:0 2px 4px rgba(0,0,0,0.03)">
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Dia 1</span><span>32°C</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Dia 2</span><span>35°C</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;color:#e65100;font-weight:800;margin-top:6px;font-size:11px">
+            <span>Máximo</span><span>35°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="background:#f3e5f5;border-radius:8px;padding:12px 14px;margin-bottom:6px;display:flex;gap:15px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;font-weight:700;color:#6a1b9a;margin-bottom:6px"><i
+              class="bi bi-hash me-1"></i>Contagem</div>
+          <div style="font-size:11px;color:#5a6474;line-height:1.6">
+            Ignora a coluna de valor numérico e apenas <b>conta quantas linhas</b> (registros) existem para aquele
+            local.
+            <br><b>Exemplo de uso:</b> Você tem uma lista de acidentes de trânsito. Sem usar uma coluna de "valor", você
+            escolhe contagem para ver <b>quantas ocorrências</b> existiram.
+          </div>
+        </div>
+        <div
+          style="background:#fff;border:1px solid #e1bee7;padding:8px 12px;border-radius:6px;font-size:10px;text-align:center;min-width:140px;box-shadow:0 2px 4px rgba(0,0,0,0.03)">
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Acidente 1</span><span>-</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;margin-bottom:4px;padding-bottom:3px;color:#78909c">
+            <span style="font-weight:600">Acidente 2</span><span>-</span>
+          </div>
+          <div
+            style="display:flex;justify-content:space-between;color:#6a1b9a;font-weight:800;margin-top:6px;font-size:11px">
+            <span>Resultado</span><span>2 ocorrências</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL AJUDA TIPO DE VISUALIZAÇÃO ═══════ -->
+<div id="viz-help-modal">
+  <div class="csv-mbox" style="max-width:580px">
+    <div class="csv-mhd">
+      <h6><i class="bi bi-layers me-2"></i>Tipos de Visualização</h6>
+      <button class="csv-mclose" onclick="closeVizHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+
+      <!-- CALOR -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:4px">
+          <i class="bi bi-thermometer-half me-1"></i>Calor (Gradiente)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada área recebe uma cor proporcional ao seu valor numérico — quanto maior, mais escura. Ideal para visualizar
+          intensidade, como população, receita ou índices.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:280px;border-radius:8px;border:1px solid #c6d4ee">
+            <rect width="200" height="110" fill="#f7f9ff" />
+            <!-- Linha 1 -->
+            <rect x="4" y="4" width="44" height="30" rx="4" fill="#deebf7" />
+            <rect x="52" y="4" width="44" height="30" rx="4" fill="#c6dbef" />
+            <rect x="100" y="4" width="44" height="30" rx="4" fill="#9ecae1" />
+            <rect x="148" y="4" width="48" height="30" rx="4" fill="#6baed6" />
+            <!-- Linha 2 -->
+            <rect x="4" y="38" width="44" height="30" rx="4" fill="#9ecae1" />
+            <rect x="52" y="38" width="44" height="30" rx="4" fill="#4292c6" />
+            <rect x="100" y="38" width="44" height="30" rx="4" fill="#2171b5" />
+            <rect x="148" y="38" width="48" height="30" rx="4" fill="#08519c" />
+            <!-- Linha 3 -->
+            <rect x="4" y="72" width="44" height="34" rx="4" fill="#6baed6" />
+            <rect x="52" y="72" width="44" height="34" rx="4" fill="#2171b5" />
+            <rect x="100" y="72" width="44" height="34" rx="4" fill="#08519c" />
+            <rect x="148" y="72" width="48" height="34" rx="4" fill="#08306b" />
+            <!-- Legenda gradiente -->
+            <defs>
+              <linearGradient id="gradLeg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:6px;gap:4px;align-items:center">
+          <span style="font-size:10px;color:#78909c">Baixo</span>
+          <div
+            style="width:120px;height:8px;border-radius:4px;background:linear-gradient(to right,#deebf7,#08306b);border:1px solid #c6d4ee">
+          </div>
+          <span style="font-size:10px;color:#78909c">Alto</span>
+        </div>
+      </div>
+
+      <!-- CATEGÓRICO -->
+      <div style="background:#fce4ec;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#880e4f;margin-bottom:4px">
+          <i class="bi bi-tags me-1"></i>Categórico (por grupo)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada categoria recebe uma cor distinta. Ideal para colunas de texto como porte, região, partido, tipo de
+          gestão. Você pode personalizar a cor de cada categoria.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:280px;border-radius:8px;border:1px solid #f8bbd0">
+            <rect width="200" height="110" fill="#fff7f9" />
+            <!-- Linha 1 -->
+            <rect x="4" y="4" width="44" height="30" rx="4" fill="#003DA5" />
+            <rect x="52" y="4" width="44" height="30" rx="4" fill="#e53935" />
+            <rect x="100" y="4" width="44" height="30" rx="4" fill="#43a047" />
+            <rect x="148" y="4" width="48" height="30" rx="4" fill="#003DA5" />
+            <!-- Linha 2 -->
+            <rect x="4" y="38" width="44" height="30" rx="4" fill="#fb8c00" />
+            <rect x="52" y="38" width="44" height="30" rx="4" fill="#43a047" />
+            <rect x="100" y="38" width="44" height="30" rx="4" fill="#e53935" />
+            <rect x="148" y="38" width="48" height="30" rx="4" fill="#8e24aa" />
+            <!-- Linha 3 -->
+            <rect x="4" y="72" width="44" height="34" rx="4" fill="#43a047" />
+            <rect x="52" y="72" width="44" height="34" rx="4" fill="#8e24aa" />
+            <rect x="100" y="72" width="44" height="34" rx="4" fill="#fb8c00" />
+            <rect x="148" y="72" width="48" height="34" rx="4" fill="#003DA5" />
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:6px;gap:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#003DA5;border-radius:3px"></span>Grande</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#e53935;border-radius:3px"></span>Médio</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#43a047;border-radius:3px"></span>Pequeno</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#fb8c00;border-radius:3px"></span>Micro</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#8e24aa;border-radius:3px"></span>Nano</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL AJUDA DISTRIBUIÇÃO DE CORES ═══════ -->
+<div id="escala-help-modal">
+  <div class="csv-mbox" style="max-width:580px">
+    <div class="csv-mhd">
+      <h6><i class="bi bi-bar-chart-steps me-2"></i>Distribuição de Cores</h6>
+      <button class="csv-mclose" onclick="closeEscalaHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+
+      <!-- LINEAR -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:4px">
+          <i class="bi bi-arrow-right me-1"></i>Linear
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          A cor avança <b>proporcionalmente ao valor</b>. Se o valor dobra, a posição na escala também dobra.
+          Funciona bem quando os dados estão bem distribuídos e sem valores extremos dominantes.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #c6d4ee">
+            <rect width="280" height="80" fill="#f7f9ff" />
+            <defs>
+              <linearGradient id="gLin" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="12" width="260" height="30" rx="5" fill="url(#gLin)" />
+            <!-- marcadores igualmente espaçados -->
+            <line x1="10" y1="42" x2="10" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="75" y1="42" x2="75" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="140" y1="42" x2="140" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="205" y1="42" x2="205" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="270" y1="42" x2="270" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <text x="10" y="62" font-size="9" fill="#78909c" text-anchor="middle">0</text>
+            <text x="75" y="62" font-size="9" fill="#78909c" text-anchor="middle">250</text>
+            <text x="140" y="62" font-size="9" fill="#78909c" text-anchor="middle">500</text>
+            <text x="205" y="62" font-size="9" fill="#78909c" text-anchor="middle">750</text>
+            <text x="270" y="62" font-size="9" fill="#78909c" text-anchor="middle">1000</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos iguais em valor</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- PROPORCIONAL -->
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:4px">
+          <i class="bi bi-distribute-horizontal me-1"></i>Proporcional (Rank)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada faixa de cor representa o <b>mesmo percentual de municípios</b> (ex: 20% por cor).
+          Ideal quando poucos valores muito altos dominam o mapa e deixam o restante invisível.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #c8e6c9">
+            <rect width="280" height="80" fill="#f7fff7" />
+            <!-- 5 blocos de largura igual (52px cada) -->
+            <rect x="10" y="12" width="52" height="30" rx="0" fill="#deebf7" />
+            <rect x="62" y="12" width="52" height="30" rx="0" fill="#9ecae1" />
+            <rect x="114" y="12" width="52" height="30" rx="0" fill="#4292c6" />
+            <rect x="166" y="12" width="52" height="30" rx="0" fill="#2171b5" />
+            <rect x="218" y="12" width="52" height="30" rx="0" fill="#084594" />
+            <!-- bordas entre blocos -->
+            <line x1="62" y1="12" x2="62" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="114" y1="12" x2="114" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="166" y1="12" x2="166" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="218" y1="12" x2="218" y2="42" stroke="#fff" stroke-width="2" />
+            <!-- rótulos -->
+            <text x="36" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="88" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="140" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="192" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="244" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos iguais em nº de
+              municípios</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div style="background:#fff3e0;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#e65100;margin-bottom:4px">
+          <i class="bi bi-activity me-1"></i>Logarítmica
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Comprime os valores <b>altos</b> e expande os <b>baixos</b>. Municípios com valores menores ganham
+          mais destaque visual. Ideal para dados com grande amplitude, como população.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #ffe0b2">
+            <rect width="280" height="80" fill="#fffdf7" />
+            <defs>
+              <linearGradient id="gLog2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="12%" stop-color="#9ecae1" />
+                <stop offset="35%" stop-color="#4292c6" />
+                <stop offset="65%" stop-color="#2171b5" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="12" width="260" height="30" rx="5" fill="url(#gLog2)" />
+            <!-- marcadores em posições logarítmicas -->
+            <line x1="10" y1="42" x2="10" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="42" y1="42" x2="42" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="100" y1="42" x2="100" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="178" y1="42" x2="178" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="270" y1="42" x2="270" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <text x="10" y="62" font-size="9" fill="#78909c" text-anchor="middle">10</text>
+            <text x="42" y="62" font-size="9" fill="#78909c" text-anchor="middle">50</text>
+            <text x="100" y="62" font-size="9" fill="#78909c" text-anchor="middle">200</text>
+            <text x="178" y="62" font-size="9" fill="#78909c" text-anchor="middle">500</text>
+            <text x="270" y="62" font-size="9" fill="#78909c" text-anchor="middle">1000</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos em escala
+              logarítmica</text>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL AJUDA PALETA DE CORES ═══════ -->
+<div id="paleta-help-modal">
+  <div class="csv-mbox" style="max-width:620px">
+    <div class="csv-mhd">
+      <h6><i class="bi bi-palette me-2"></i>Paletas de Cores</h6>
+      <button class="csv-mclose" onclick="closePaletaHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+
+      <p style="font-size:12px;color:#5a6474;margin-bottom:14px;line-height:1.6">
+        Escolha a paleta de acordo com o tipo de dado. <b>Sequenciais</b> (uma cor) são ideais para valores numéricos
+        crescentes.
+        <b>Divergentes</b> (duas cores) funcionam bem quando há um valor central de referência (ex: positivo/negativo).
+      </p>
+
+      <!-- SEQUENCIAIS -->
+      <div
+        style="font-size:10px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">
+        <i class="bi bi-arrow-right me-1"></i>Sequenciais — para dados numéricos com uma direção
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+
+        <!-- Azul -->
+        <div style="background:#eef3fc;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#eff3ff;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#bdd7e7"></div>
+            <div style="flex:1;height:20px;background:#6baed6"></div>
+            <div style="flex:1;height:20px;background:#2171b5"></div>
+            <div style="flex:1;height:20px;background:#084594;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Azul</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Clássico para dados de intensidade. Ótimo para
+            população, arrecadação, IDH.</div>
+        </div>
+
+        <!-- Vermelho -->
+        <div style="background:#fff5f5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#fee5d9;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#fcae91"></div>
+            <div style="flex:1;height:20px;background:#fb6a4a"></div>
+            <div style="flex:1;height:20px;background:#de2d26"></div>
+            <div style="flex:1;height:20px;background:#a50f15;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Vermelho</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Transmite urgência ou risco. Ideal para indicadores
+            negativos, inadimplência, mortalidade.</div>
+        </div>
+
+        <!-- Verde -->
+        <div style="background:#f0faf0;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#edf8e9;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#bae4b3"></div>
+            <div style="flex:1;height:20px;background:#74c476"></div>
+            <div style="flex:1;height:20px;background:#31a354"></div>
+            <div style="flex:1;height:20px;background:#006d2c;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Verde</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Associado a crescimento e resultado positivo. Bom
+            para cobertura, adesão, receita.</div>
+        </div>
+
+        <!-- Laranja -->
+        <div style="background:#fffaf5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#fff5eb;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#fdd0a2"></div>
+            <div style="flex:1;height:20px;background:#fdae6b"></div>
+            <div style="flex:1;height:20px;background:#e6550d"></div>
+            <div style="flex:1;height:20px;background:#a63603;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Laranja</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Energético e vibrante. Bom para dados de atividade
+            econômica, produção.</div>
+        </div>
+
+        <!-- Roxo -->
+        <div style="background:#f8f5ff;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#f2f0f7;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#cbc9e2"></div>
+            <div style="flex:1;height:20px;background:#9e9ac8"></div>
+            <div style="flex:1;height:20px;background:#756bb1"></div>
+            <div style="flex:1;height:20px;background:#54278f;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Roxo</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Sofisticado e neutro. Bom para dados demográficos ou
+            quando outras cores já foram usadas.</div>
+        </div>
+
+        <!-- Amarelo → Vermelho -->
+        <div style="background:#fffef5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#ffffb2;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#fecc5c"></div>
+            <div style="flex:1;height:20px;background:#fd8d3c"></div>
+            <div style="flex:1;height:20px;background:#f03b20"></div>
+            <div style="flex:1;height:20px;background:#bd0026;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Amarelo → Vermelho</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Intuitivo para risco crescente: verde-amarelo
+            (seguro) até vermelho (crítico).</div>
+        </div>
+
+        <!-- Amarelo → Azul -->
+        <div style="background:#f5feff;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#ffffcc;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#a1dab4"></div>
+            <div style="flex:1;height:20px;background:#41b6c4"></div>
+            <div style="flex:1;height:20px;background:#2c7fb8"></div>
+            <div style="flex:1;height:20px;background:#253494;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Amarelo → Azul</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Elegante e com bom contraste. Ótimo para dados
+            ambientais e climáticos.</div>
+        </div>
+
+        <!-- Vermelho → Roxo -->
+        <div style="background:#fff5f8;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#feebe2;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#fbb4b9"></div>
+            <div style="flex:1;height:20px;background:#f768a1"></div>
+            <div style="flex:1;height:20px;background:#c51b8a"></div>
+            <div style="flex:1;height:20px;background:#7a0177;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Vermelho → Roxo</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Vibrante e moderno. Bom para dados de saúde ou quando
+            se quer destaque visual.</div>
+        </div>
+
+      </div>
+
+      <!-- PERCEPTUALMENTE UNIFORMES -->
+      <div
+        style="font-size:10px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">
+        <i class="bi bi-eye me-1"></i>Perceptualmente uniformes — alta legibilidade
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+
+        <!-- Viridis -->
+        <div style="background:#f5f5f5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#440154;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#31688e"></div>
+            <div style="flex:1;height:20px;background:#35b779"></div>
+            <div style="flex:1;height:20px;background:#b5de2b"></div>
+            <div style="flex:1;height:20px;background:#fde725;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Viridis</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Acessível para daltônicos. Muito usado em publicações
+            científicas e acadêmicas.</div>
+        </div>
+
+        <!-- Plasma -->
+        <div style="background:#f5f5f5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#0d0887;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#7e03a8"></div>
+            <div style="flex:1;height:20px;background:#cc4778"></div>
+            <div style="flex:1;height:20px;background:#f89540"></div>
+            <div style="flex:1;height:20px;background:#f0f921;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Plasma</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Alta saturação e contraste. Ótimo para apresentações
+            com fundo escuro ou impacto visual.</div>
+        </div>
+
+      </div>
+
+      <!-- DIVERGENTES -->
+      <div
+        style="font-size:10px;font-weight:700;color:#78909c;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">
+        <i class="bi bi-arrows-expand me-1"></i>Divergentes — para dados com valor central de referência
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+        <!-- Frio → Quente -->
+        <div style="background:#f5f8ff;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#3b4cc0;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#6688ee"></div>
+            <div style="flex:1;height:20px;background:#dddddd"></div>
+            <div style="flex:1;height:20px;background:#ee8866"></div>
+            <div style="flex:1;height:20px;background:#b40426;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Frio → Quente</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Azul para valores abaixo da média, vermelho para
+            acima. Ideal para variações em relação à média nacional.</div>
+        </div>
+
+        <!-- Vermelho → Verde -->
+        <div style="background:#f5fff5;border-radius:8px;padding:10px 12px">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="flex:1;height:20px;background:#d73027;border-radius:3px 0 0 3px"></div>
+            <div style="flex:1;height:20px;background:#fc8d59"></div>
+            <div style="flex:1;height:20px;background:#fee08b"></div>
+            <div style="flex:1;height:20px;background:#91cf60"></div>
+            <div style="flex:1;height:20px;background:#1a9850;border-radius:0 3px 3px 0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:#1a2744">Vermelho → Verde</div>
+          <div style="font-size:10px;color:#5a6474;margin-top:2px">Vermelho para ruim, verde para bom. Perfeito para
+            rankings, notas e indicadores de desempenho.</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL AJUDA COLUNA DE DADOS ═══════ -->
+<div id="col-help-modal">
+  <div class="csv-mbox" style="max-width:560px">
+    <div class="csv-mhd">
+      <h6><i class="bi bi-table me-2"></i>O que selecionar como dado do mapa?</h6>
+      <button class="csv-mclose" onclick="closeColHelp()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="csv-mbody">
+
+      <p style="font-size:13px;color:#1a2744;font-weight:600;margin-bottom:14px">
+        Escolha a coluna cujos valores vão <b>colorir cada área</b> do mapa. Veja os três casos mais comuns:
+      </p>
+
+      <!-- Numérica contínua -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:6px">
+          <i class="bi bi-bar-chart-fill me-1"></i>Coluna numérica — valores contínuos
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando os números têm grandeza (população, receita, índice…). O mapa usa gradiente de cor — quanto maior o
+          valor, mais escura a área.
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #c6d4ee;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#003DA5;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#003DA5;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#1565c0;color:#fff;padding:6px 10px;text-align:left">👉 populacao</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f7f9ff">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">3.015.268</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">3550308</td>
+                <td style="padding:5px 10px;color:#5a6474">São Paulo</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">12.396.372</td>
+              </tr>
+              <tr style="background:#f7f9ff">
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">2.219.580</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Calor</b> para visualizar este dado.
+        </div>
+      </div>
+
+      <!-- Binária 0/1 -->
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:6px">
+          <i class="bi bi-toggle-on me-1"></i>Coluna binária — presença ou ausência (0 / 1)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando o valor indica apenas se algo existe ou não naquela área (filiado, conveniado, certificado…).
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #c8e6c9;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#2e7d32;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#2e7d32;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#388e3c;color:#fff;padding:6px 10px;text-align:left">👉 filiado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f7fff7">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#2e7d32">1</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">3550308</td>
+                <td style="padding:5px 10px;color:#5a6474">São Paulo</td>
+                <td style="padding:5px 10px;font-weight:700;color:#c62828">0</td>
+              </tr>
+              <tr style="background:#f7fff7">
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#2e7d32">1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Categórico</b> para visualizar este
+          dado.</div>
+      </div>
+
+      <!-- Categórica -->
+      <div style="background:#fce4ec;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#880e4f;margin-bottom:6px">
+          <i class="bi bi-tags me-1"></i>Coluna categórica — grupos ou classificações
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando o valor é um texto que representa uma categoria (porte, partido, região, tipo de gestão…). Cada grupo
+          recebe uma cor distinta.
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #f8bbd0;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#880e4f;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#880e4f;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#ad1457;color:#fff;padding:6px 10px;text-align:left">👉 porte</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#fff7f9">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Grande</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Médio</td>
+              </tr>
+              <tr style="background:#fff7f9">
+                <td style="padding:5px 10px;color:#5a6474">5002704</td>
+                <td style="padding:5px 10px;color:#5a6474">Campo Grande</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Pequeno</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Categórico</b> para visualizar este
+          dado.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</html>
