@@ -19,27 +19,49 @@ app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024
 
 BASE_DIR = os.path.dirname(__file__)
 SHP_DIR  = os.path.join(BASE_DIR, "shapefiles")
+GEO_DIR  = os.path.join(BASE_DIR, "geodata")
+
+# Nomes dos shapefiles originais do IBGE, por nível.
+SHP_NOMES = {
+    "pais":      "BR_Pais_2025",
+    "uf":        "BR_UF_2025",
+    "municipio": "BR_Municipios_2025",
+}
+
+# Tolerância de simplificação de geometria, por nível.
+SIMPLIFY_TOL = {"municipio": 0.005}
+TOL_PADRAO   = 0.001
 
 _gdf      = {}
 _gdf_lock = threading.Lock()
+
+
+def ler_shapefile(nivel: str) -> gpd.GeoDataFrame:
+    """Lê o shapefile bruto do IBGE, reprojeta e simplifica a geometria."""
+    nome = SHP_NOMES[nivel]
+    shp  = os.path.join(SHP_DIR, nome, f"{nome}.shp")
+    gdf  = gpd.read_file(shp, encoding="utf-8").to_crs("EPSG:4326")
+    tol  = SIMPLIFY_TOL.get(nivel, TOL_PADRAO)
+    gdf["geometry"] = gdf["geometry"].simplify(tol, preserve_topology=True)
+    return gdf
 
 
 def get_gdf(nivel: str) -> gpd.GeoDataFrame:
     if nivel not in _gdf:
         with _gdf_lock:
             if nivel not in _gdf:
-                mapa = {
-                    "pais":      "BR_Pais_2025",
-                    "uf":        "BR_UF_2025",
-                    "municipio": "BR_Municipios_2025",
-                }
-                shp = os.path.join(SHP_DIR, mapa[nivel], f"{mapa[nivel]}.shp")
-                print(f"Carregando shapefile {nivel}...")
-                gdf = gpd.read_file(shp, encoding="utf-8").to_crs("EPSG:4326")
-                tol = 0.005 if nivel == "municipio" else 0.001
-                gdf["geometry"] = gdf["geometry"].simplify(tol, preserve_topology=True)
+                # Preferimos o GeoParquet pré-simplificado (gerado por
+                # preparar_geodata.py): são ~7 MB no total contra 336 MB de
+                # shapefiles, e carrega em menos de 1 s em vez de ~25 s.
+                pq = os.path.join(GEO_DIR, f"{nivel}.parquet")
+                if os.path.exists(pq):
+                    print(f"Carregando geodata {nivel} (parquet)...")
+                    gdf = gpd.read_parquet(pq)
+                else:
+                    print(f"Carregando shapefile {nivel}...")
+                    gdf = ler_shapefile(nivel)
                 _gdf[nivel] = gdf
-                print(f"  → {len(gdf)} feições")
+                print(f"  -> {len(gdf)} feicoes carregadas")
     return _gdf[nivel]
 
 
@@ -1134,12 +1156,18 @@ def _detectar_geo(df):
 
 
 # ── Start ──────────────────────────────────────────────────────────────────────
-if __name__ == "__main__":
+def preaquecer():
+    """Carrega as geometrias em background para a primeira requisição não pagar o custo."""
     for n in ("uf", "municipio"):
         threading.Thread(target=get_gdf, args=(n,), daemon=True).start()
+
+
+if __name__ == "__main__":
+    porta = int(os.environ.get("PORT", 5000))
+    preaquecer()
     print("=" * 50)
     print("  CNM Sistema de Mapas")
-    print("  Acesse: http://localhost:5000")
+    print(f"  Acesse: http://localhost:{porta}")
     print("=" * 50)
     from waitress import serve
-    serve(app, host="0.0.0.0", port=5000, threads=4)
+    serve(app, host="0.0.0.0", port=porta, threads=4)
