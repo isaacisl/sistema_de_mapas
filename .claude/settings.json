@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./shapefiles/**)",
+      "Read(./geodata/**)",
+      "Read(./__pycache__/**)",
+      "Read(./.claude/worktrees/**)"
+    ]
+  }
+}

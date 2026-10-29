@@ -11,4 +11,5 @@ __pycache__/
 *.pyc
 desktop.ini
 test_*.png
-.claude/
+.claude/settings.local.json
+.claude/worktrees/
