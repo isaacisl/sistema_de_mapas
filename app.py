@@ -635,7 +635,7 @@ def _renderizar(merged, col_plot, nome_val,
     ax.set_facecolor("white")
 
     mun_visivel = show_mun and cor_mun != 'none'
-    edge   = cor_mun if mun_visivel else 'face'
+    edge   = cor_mun if mun_visivel else 'none'
     lw_mun = esp_mun if mun_visivel else 0.3
     # Hachura de "sem dado" usa cor própria (não depende da linha de município), mas a
     # BORDA em volta de cada município sem dado só aparece se a linha de município
@@ -750,6 +750,11 @@ def _renderizar(merged, col_plot, nome_val,
         if norm_log:
             kw_plot["norm"] = norm_log
 
+        # Contagem consistente com as cores desenhadas (preenchida no ramo classificado)
+        _contagem_counts = None
+        _contagem_bins   = None
+        _contagem_min    = None
+
         if not com_legenda:
             kw_plot["legend"] = False
             if not usar_breaks and not norm_log:
@@ -768,18 +773,35 @@ def _renderizar(merged, col_plot, nome_val,
         else:
             # Classificado (ou fallback automático de dados assimétricos)
             # "Contagem" usa Natural Breaks e depois injeta contagem em cada faixa
-            scheme_map = {"Quantiles":      "quantiles",
-                          "Equal Interval": "equal_interval",
-                          "Natural Breaks": "natural_breaks",
-                          "Contagem":       "natural_breaks"}
+            scheme_map = {"Quantiles":        "quantiles",
+                          "Equal Interval":   "equal_interval",
+                          "Natural Breaks":   "natural_breaks",
+                          "Contagem":         "natural_breaks",
+                          "Faixa e Contagem": "natural_breaks"}
             kw_plot["legend"] = True
             kw_plot["legend_kwds"] = {"title": nome_val, "fmt": "{:.1f}", "loc": loc_leg}
-            if usar_breaks:
-                # Assimetria detectada: Natural Breaks dá melhor distribuição visual
-                kw_plot["scheme"] = "natural_breaks"
-                kw_plot["k"]      = k_legenda
-            elif tipo_legenda in scheme_map:
-                kw_plot["scheme"] = scheme_map[tipo_legenda]
+
+            _scheme = "natural_breaks" if usar_breaks else scheme_map.get(tipo_legenda)
+
+            if _scheme == "natural_breaks":
+                # Natural Breaks (Jenks) é NÃO-determinístico (k-means com início
+                # aleatório): duas chamadas dão cortes diferentes. Se pintarmos o mapa
+                # com uma classificação e contarmos a legenda com outra, os números não
+                # batem com as cores. Por isso classificamos UMA única vez, de forma
+                # reprodutível, e reaproveitamos exatamente estes cortes para pintar
+                # (scheme "user_defined") e para contar (_contagem_counts).
+                import mapclassify as _mc
+                _vals_clf = pd.to_numeric(merged[col_plot_render], errors="coerce").dropna().values
+                _k = int(min(k_legenda, max(1, len(np.unique(_vals_clf)))))
+                np.random.seed(42)
+                _clf = _mc.NaturalBreaks(_vals_clf, k=_k)
+                _contagem_counts = list(int(c) for c in _clf.counts)
+                _contagem_bins   = list(float(b) for b in _clf.bins)
+                _contagem_min    = float(_vals_clf.min())
+                kw_plot["scheme"] = "user_defined"
+                kw_plot["classification_kwds"] = {"bins": list(_clf.bins)}
+            elif _scheme:
+                kw_plot["scheme"] = _scheme
                 kw_plot["k"]      = k_legenda
 
         try:
@@ -847,12 +869,15 @@ def _renderizar(merged, col_plot, nome_val,
             # ── Pós-processamento "Contagem": injeta nº de itens em cada faixa ──
             if tipo_legenda == "Contagem" and com_legenda:
                 try:
-                    import mapclassify as _mc
-                    _vals = pd.to_numeric(
-                        merged[col_plot_render], errors="coerce"
-                    ).dropna().values
-                    _clf    = _mc.NaturalBreaks(_vals, k=k_legenda)
-                    _counts = list(_clf.counts)
+                    # Reutiliza os MESMOS cortes usados para pintar o mapa (calculados
+                    # uma única vez acima), garantindo que a contagem bata com as cores.
+                    _counts = _contagem_counts
+                    if _counts is None:
+                        import mapclassify as _mc
+                        _vals   = pd.to_numeric(
+                            merged[col_plot_render], errors="coerce"
+                        ).dropna().values
+                        _counts = list(int(c) for c in _mc.NaturalBreaks(_vals, k=k_legenda).counts)
                     _leg    = ax.get_legend()
                     if _leg:
                         for i, _txt in enumerate(_leg.get_texts()):
@@ -862,6 +887,45 @@ def _renderizar(merged, col_plot, nome_val,
                             _txt.set_text(f"{_n:,}".replace(",", ".") + " municípios")
                 except Exception as _e:
                     print(f"[WARN] Contagem – pós-processamento de legenda falhou: {_e}")
+
+            # ── Pós-processamento "Faixa e Contagem": faixa de valor + nº de itens ──
+            # Mostra "faixa de valor — N municípios" em ORDEM DE VALOR (claro→escuro),
+            # para a legenda continuar interpretável (cor → faixa → quantidade).
+            if tipo_legenda == "Faixa e Contagem" and com_legenda:
+                try:
+                    if _contagem_bins is None or _contagem_counts is None:
+                        import mapclassify as _mc
+                        _vals = pd.to_numeric(
+                            merged[col_plot_render], errors="coerce"
+                        ).dropna().values
+                        np.random.seed(42)
+                        _clf_f = _mc.NaturalBreaks(_vals, k=k_legenda)
+                        _contagem_bins   = list(float(b) for b in _clf_f.bins)
+                        _contagem_counts = list(int(c) for c in _clf_f.counts)
+                        _contagem_min    = float(_vals.min())
+
+                    _inteiro = (float(_contagem_min).is_integer()
+                                and all(float(b).is_integer() for b in _contagem_bins))
+
+                    def _fmt_faixa(i):
+                        hi = _contagem_bins[i]
+                        lo = _contagem_min if i == 0 else _contagem_bins[i - 1]
+                        if _inteiro:
+                            lo_i = int(lo) if i == 0 else int(lo) + 1
+                            hi_i = int(hi)
+                            return f"{lo_i}" if lo_i >= hi_i else f"{lo_i}–{hi_i}"
+                        return f"{lo:.1f}–{hi:.1f}"
+
+                    _leg = ax.get_legend()
+                    if _leg:
+                        for i, _txt in enumerate(_leg.get_texts()):
+                            if i >= len(_contagem_counts):
+                                break
+                            _n = int(_contagem_counts[i])
+                            _nm = f"{_n:,}".replace(",", ".")
+                            _txt.set_text(f"{_fmt_faixa(i)}  —  {_nm} municípios")
+                except Exception as _e:
+                    print(f"[WARN] Faixa e Contagem – pós-processamento de legenda falhou: {_e}")
 
             # ── Remove entradas "nan" da legenda (áreas sem dados) ──────────────
             if com_legenda:
@@ -986,8 +1050,10 @@ def _renderizar(merged, col_plot, nome_val,
                         return max(int(m) for m in ms2)
                     return -1
 
+                # "Faixa e Contagem" é uma escala graduada: mantém a ordem por valor
+                # (claro→escuro). Só os demais tipos são ordenados por quantidade.
                 _counts = [_parse_count(l) for l in _labels]
-                if any(c >= 0 for c in _counts):
+                if tipo_legenda != "Faixa e Contagem" and any(c >= 0 for c in _counts):
                     _sorted = sorted(zip(_handles, _labels, _counts),
                                      key=lambda x: x[2], reverse=True)
                     _handles, _labels = [x[0] for x in _sorted], [x[1] for x in _sorted]

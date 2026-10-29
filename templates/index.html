@@ -109,38 +109,82 @@
       flex: 1;
     }
 
+    /* Rodapé fixo da sidebar: formato + Gerar mapa ficam sempre à vista */
     #sb-acoes {
-      padding: 10px 14px;
+      padding: 10px 14px 12px;
       background: #fff;
-      border-bottom: 1px solid #dde3ec;
+      border-top: 1px solid #dde3ec;
+      box-shadow: 0 -4px 12px rgba(26, 39, 68, .06);
       display: flex;
       flex-direction: column;
       gap: 8px;
       flex-shrink: 0;
     }
 
-    #bloco-export-img {
+    #status-pronto {
+      font-size: 12px;
+      color: #5a6474;
       display: flex;
-      flex-direction: column;
+      align-items: flex-start;
       gap: 6px;
+      line-height: 1.4
     }
 
+    #status-pronto.ok {
+      color: #2e7d32
+    }
+
+    #bloco-export-img,
     #bloco-export-html {
       display: flex;
-      flex-direction: column;
       gap: 6px;
+      margin-left: auto;
+    }
+
+    /* Etapas da sidebar (sequência real de uso) */
+    .etapa {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a2744;
+      margin-bottom: -3px
+    }
+
+    .etapa .step-num {
+      margin-right: 0
+    }
+
+    .etapa-opc {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5a6474;
+      margin-bottom: -6px
+    }
+
+    .vazio-s {
+      font-size: 12px;
+      color: #78909c;
+      background: #f7f9fc;
+      border: 1px dashed #d0d7e3;
+      border-radius: 8px;
+      padding: 10px 12px
     }
 
     /* Labels */
     .fg label,
     .lbl-s {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 600;
       color: #5a6474;
-      text-transform: uppercase;
-      letter-spacing: .5px;
       display: block;
       margin-bottom: 5px
+    }
+
+    .opc {
+      font-weight: 400;
+      color: #78909c
     }
 
     .fg select {
@@ -172,12 +216,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: #1976d2;
       color: #fff;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
       border: none;
@@ -315,19 +359,31 @@
     .tipo-g {
       display: flex;
       gap: 5px;
-      flex-wrap: wrap
+      flex-wrap: wrap;
+      position: relative
     }
 
+    /* Rádio escondido só visualmente: continua focável pelo teclado */
     .tipo-g input[type=radio] {
-      display: none
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none
+    }
+
+    .tipo-g input[type=radio]:focus-visible+label {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px
     }
 
     .tipo-g label {
       flex: 1;
       min-width: 60px;
       text-align: center;
-      padding: 6px 4px;
-      font-size: 11px;
+      padding: 7px 4px;
+      font-size: 12px;
+      line-height: 1.35;
       font-weight: 600;
       border: 1.5px solid #d0d7e3;
       border-radius: 6px;
@@ -391,7 +447,9 @@
     }
 
     #painel-analise {
-      display: none
+      display: none;
+      flex-direction: column;
+      gap: 12px
     }
 
     /* Step badge */
@@ -591,8 +649,6 @@
     .color-pick-wrap label {
       font-size: 10px;
       color: #78909c;
-      text-transform: uppercase;
-      letter-spacing: .5px;
       margin: 0;
       white-space: nowrap;
     }
@@ -613,32 +669,46 @@
     }
 
     /* Collapsible section */
+    .sec-wrap {
+      border: 1px solid #e3e9f3;
+      border-radius: 8px;
+      padding: 0 12px
+    }
+
+    .sec-wrap.open {
+      padding-bottom: 12px
+    }
+
     .sec-toggle {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11px;
-      font-weight: 700;
-      color: #5a6474;
-      text-transform: uppercase;
-      letter-spacing: .5px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a2744;
       cursor: pointer;
-      padding: 6px 0;
-      user-select: none
+      padding: 10px 0;
+      user-select: none;
+      border-radius: 6px
     }
 
     .sec-toggle:hover {
       color: var(--blue)
     }
 
+    .sec-toggle:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px
+    }
+
     .sec-toggle .chev {
-      font-size: 10px;
+      font-size: 11px;
       transition: transform .2s
     }
 
     .sec-body {
       display: none;
-      padding-top: 8px
+      padding-top: 2px
     }
 
     .sec-body.open {
@@ -723,12 +793,12 @@
 
     #btn-export,
     #btn-export-svg {
-      width: 100%;
-      padding: 8px;
+      padding: 7px 12px;
       color: #fff;
       border: none;
       border-radius: 8px;
       font-size: 13px;
+      white-space: nowrap;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -755,14 +825,15 @@
     }
 
     #btn-export:disabled,
-    #btn-export-svg:disabled {
+    #btn-export-svg:disabled,
+    #btn-export-html:disabled {
       background: #90a4ae;
       cursor: not-allowed
     }
 
     #btn-export-html {
-      width: 100%;
-      padding: 8px;
+      padding: 7px 12px;
+      white-space: nowrap;
       background: #00695c;
       color: #fff;
       border: none;
@@ -777,8 +848,19 @@
       transition: background .15s
     }
 
-    #btn-export-html:hover {
+    #btn-export-html:hover:not(:disabled) {
       background: #00897b
+    }
+
+    #btn-export:hover:disabled,
+    #btn-export-svg:hover:disabled {
+      background: #90a4ae
+    }
+
+    button:focus-visible,
+    #pal-selected:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px
     }
 
     #map-iframe {
@@ -812,6 +894,23 @@
       margin: 0
     }
 
+    #ct-sub {
+      font-size: 12px;
+      color: #78909c;
+      margin-top: 1px
+    }
+
+    #ct-head .ct-info {
+      min-width: 0
+    }
+
+    #ct-head .ct-info h5,
+    #ct-sub {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
     #map-wrap {
       flex: 1;
       position: relative;
@@ -839,15 +938,44 @@
     }
 
     #ph h6 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #90a4ae
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a2744;
+      margin: 0
+    }
+
+    #ph .ph-passos {
+      font-size: 13px;
+      color: #5a6474;
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.9
+    }
+
+    #ph-btn {
+      padding: 9px 18px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .15s
+    }
+
+    #ph-btn:hover {
+      background: var(--blue-lt)
     }
 
     #ph p {
-      font-size: 13px;
+      font-size: 12px;
       max-width: 360px;
-      text-align: center
+      text-align: center;
+      margin: 0
     }
 
     #ov {
@@ -1006,6 +1134,55 @@
       gap: 8px
     }
 
+    /* Telas estreitas: sidebar em cima, mapa embaixo; Gerar continua preso no rodapé */
+    @media (max-width: 900px) {
+      #wrap {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh
+      }
+
+      #sb {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        overflow: visible;
+        border-right: none;
+        border-bottom: 1px solid #dde3ec
+      }
+
+      .sb-body {
+        overflow: visible
+      }
+
+      #sb-acoes {
+        position: sticky;
+        bottom: 0;
+        z-index: 20
+      }
+
+      #ct {
+        min-height: 70vh
+      }
+
+      #ct-head {
+        flex-wrap: wrap
+      }
+
+      #topbar .sys-title {
+        font-size: 14px
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important
+      }
+    }
+
     /* ── Tour / Onboarding ──────────────────────────────────────────────────── */
     #tour-welcome {
       display: none; position: fixed; inset: 0; z-index: 10000;
@@ -1127,67 +1304,27 @@
     <!-- ═══════ SIDEBAR ═══════ -->
     <aside id="sb">
       <div class="sb-head">
-        <h6><i class="bi bi-sliders me-1"></i>Configurar Mapa</h6>
-        <small>Arquivo CSV ou entrada manual de áreas</small>
-      </div>
-
-      <div id="sb-acoes">
-        <!-- Tipo de mapa -->
-        <div id="bloco-saida" style="margin-bottom:4px">
-          <div class="lbl-help" style="margin-bottom:5px">
-            <label style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:0">
-              <i class="bi bi-image me-1"></i>Tipo de saída
-            </label>
-            <button class="help-btn" data-help="h-saida" onclick="toggleHelp('h-saida')">?</button>
-          </div>
-          <div class="help-box" id="h-saida"><b>Figura</b> gera uma imagem estática (PNG/SVG) de alta qualidade, ideal para relatórios e apresentações.<br><br><b>HTML Interativo</b> cria um mapa navegável no navegador, com zoom e tooltips ao passar o mouse.</div>
-          <div class="tipo-g">
-            <input type="radio" name="tipo-mapa" id="tm-figura" value="figura" checked>
-            <label for="tm-figura"><i class="bi bi-image"></i><br>Figura</label>
-            <input type="radio" name="tipo-mapa" id="tm-html" value="html">
-            <label for="tm-html"><i class="bi bi-globe2"></i><br>HTML Interativo</label>
-          </div>
-        </div>
-        <!-- Tile layer (só aparece no modo HTML) -->
-        <div id="bloco-tile" style="display:none;margin-bottom:4px">
-          <div
-            style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">
-            <i class="bi bi-layers me-1"></i>Fundo do mapa
-          </div>
-          <div class="tipo-g">
-            <input type="radio" name="tile-layer" id="tl-urbano" value="urbano" checked>
-            <label for="tl-urbano"><i class="bi bi-map"></i><br>Urbano</label>
-            <input type="radio" name="tile-layer" id="tl-satelite" value="satelite">
-            <label for="tl-satelite"><i class="bi bi-satellite"></i><br>Satélite</label>
-          </div>
-        </div>
-        <button id="btn-gerar" onclick="gerarMapa()"><i class="bi bi-map-fill"></i> Gerar Mapa</button>
-        <div id="bloco-export-img">
-          <button id="btn-export" onclick="exportarPNG()"><i class="bi bi-download"></i> Exportar PNG (300 dpi)</button>
-          <button id="btn-export-svg" onclick="exportarSVG()"><i class="bi bi-filetype-svg"></i> Exportar SVG
-            (vetorial)</button>
-        </div>
-        <div id="bloco-export-html" style="display:none">
-          <button id="btn-export-html" onclick="exportarHTML()"><i class="bi bi-filetype-html"></i> Exportar
-            HTML</button>
-        </div>
+        <h6><i class="bi bi-sliders me-1"></i>Configurar mapa</h6>
+        <small>Preencha de cima para baixo e clique em Gerar mapa.</small>
       </div>
 
       <div class="sb-body">
 
         <!-- ══ MODO CSV ══ -->
-        <div id="modo-csv">
+        <div id="modo-csv" style="display:flex;flex-direction:column;gap:13px">
+
+          <!-- Etapa 1: planilha -->
+          <div class="etapa"><span class="step-num">1</span>Planilha</div>
 
           <div class="fg">
             <div class="lbl-help">
-              <label><i class="bi bi-upload me-1"></i>Arquivo (CSV / Excel)</label>
-              <button class="help-btn" onclick="openCsvHelp()" title="Ver estrutura da planilha">?</button>
+              <label for="inp-file">Arquivo CSV ou Excel</label>
+              <button class="help-btn" onclick="openCsvHelp()" title="Como a planilha deve estar organizada" aria-label="Como a planilha deve estar organizada">?</button>
             </div>
             <div id="uz">
               <input type="file" id="inp-file" accept=".csv,.txt,.xlsx,.xls,.xlsm" />
               <div class="zi"><i class="bi bi-file-earmark-spreadsheet"></i></div>
-              <div class="zt">Arraste ou clique para selecionar<br><small style="opacity:.7">CSV · Excel (.xlsx /
-                  .xls / .xlsm)</small></div>
+              <div class="zt">Arraste a planilha aqui ou clique para escolher<br><small style="opacity:.7">.csv, .xlsx, .xls ou .xlsm</small></div>
               <div class="zn" id="fn-label"></div>
             </div>
             <button type="button" id="btn-remover" class="btn btn-sm btn-outline-secondary mt-1 w-100"
@@ -1196,24 +1333,23 @@
             </button>
             <!-- Seletor de aba (aparece só quando Excel tem múltiplas abas) -->
             <div id="wrap-aba" class="fg mt-2" style="display:none">
-              <label><i class="bi bi-collection me-1"></i>Aba da planilha</label>
+              <label for="sel-aba">Aba da planilha</label>
               <select id="sel-aba" class="form-select form-select-sm"></select>
             </div>
-          </div>
-
-          <div id="painel-analise">
-            <div style="background:#f7f9fc;border:1px solid #e3e9f3;border-radius:8px;padding:10px 12px">
-              <div
-                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">
-                <i class="bi bi-file-earmark-check me-1"></i>Arquivo carregado
-              </div>
+            <div id="resumo-arquivo" style="display:none;margin-top:8px;background:#f7f9fc;border:1px solid #e3e9f3;border-radius:8px;padding:10px 12px">
               <div id="csv-stats" style="font-size:12px;color:#1a2744;font-weight:600"></div>
               <div id="csv-cols" style="font-size:11px;color:#78909c;margin-top:3px"></div>
             </div>
+          </div>
 
-            <div id="fg-nivel" class="fg" style="margin-top:8px">
+          <!-- Etapa 2: dados -->
+          <div class="etapa"><span class="step-num">2</span>Dados do mapa</div>
+          <div id="dados-vazio" class="vazio-s">Escolha a planilha acima para indicar as colunas do mapa.</div>
+
+          <div id="painel-analise">
+            <div id="fg-nivel" class="fg">
               <div class="lbl-help">
-                <label><span class="step-num">1</span>Nível geográfico</label>
+                <label>Os dados são por</label>
                 <button class="help-btn" data-help="h-nivel" onclick="toggleHelp('h-nivel')">?</button>
               </div>
               <div class="help-box" id="h-nivel">Define se o mapa será colorido por <b>município</b>, <b>estado</b> ou
@@ -1229,10 +1365,9 @@
               </div>
             </div>
 
-            <div id="fg-foco" class="fg" style="margin-top:8px">
+            <div id="fg-foco" class="fg">
               <div class="lbl-help">
-                <label>Recortar por Estado ou Região <span
-                    style="font-weight:400;text-transform:none">(Opcional)</span></label>
+                <label>Mostrar só um estado ou região <span class="opc">(opcional)</span></label>
                 <button class="help-btn" data-help="h-foco" onclick="toggleHelp('h-foco')">?</button>
               </div>
               <div class="help-box" id="h-foco">Filtra o mapa para exibir apenas um estado ou região, ocultando os
@@ -1280,7 +1415,7 @@
 
             <div class="fg">
               <div class="lbl-help">
-                <label><span class="step-num">2</span>Coluna Código IBGE Completo</label>
+                <label for="sel-col-geo">Coluna com o código IBGE</label>
                 <button class="help-btn" data-help="h-geo" onclick="toggleHelp('h-geo')">?</button>
               </div>
               <div class="help-box" id="h-geo">Selecione a coluna da planilha que contém o <b>código IBGE</b> numérico
@@ -1291,37 +1426,38 @@
 
             <div class="fg">
               <div class="lbl-help">
-                <label><span class="step-num">3</span>Tipo de Cálculo</label>
-                <button class="help-btn" onclick="openCalcHelp()" title="Ver exemplos de cálculo">?</button>
+                <label for="sel-col-num">O que o mapa deve mostrar</label>
+                <button class="help-btn" onclick="openColHelp()" aria-label="Ajuda sobre a coluna de dados">?</button>
               </div>
-              <select id="sel-agr" class="form-select form-select-sm mt-1">
-                <option value="sum">Soma</option>
-                <option value="mean">Média</option>
-                <option value="max">Máximo</option>
-                <option value="min">Mínimo</option>
-                <option value="count">Contagem</option>
+              <select id="sel-col-num" class="form-select form-select-sm">
+                <option value="">— selecione —</option>
               </select>
             </div>
 
             <div class="fg">
               <div class="lbl-help">
-                <label><span class="step-num">4</span>O que deseja visualizar no mapa?</label>
-                <button class="help-btn" onclick="openColHelp()">?</button>
+                <label for="sel-agr">Se a área se repetir na planilha</label>
+                <button class="help-btn" onclick="openCalcHelp()" title="Ver exemplos de cálculo" aria-label="Ver exemplos de cálculo">?</button>
               </div>
-              <select id="sel-col-num" class="form-select form-select-sm">
-                <option value="">— selecione —</option>
+              <select id="sel-agr" class="form-select form-select-sm">
+                <option value="sum">Somar os valores</option>
+                <option value="mean">Fazer a média</option>
+                <option value="max">Usar o maior valor</option>
+                <option value="min">Usar o menor valor</option>
+                <option value="count">Contar as linhas</option>
               </select>
             </div>
           </div>
         </div>
         <!-- ══ FIM CSV ══ -->
 
-        <hr class="divider" />
+        <!-- Etapa 3: aparência -->
+        <div class="etapa"><span class="step-num">3</span>Aparência</div>
 
         <!-- Tipo de Visualização -->
         <div id="fg-viz" class="fg">
           <div class="lbl-help">
-            <label><i class="bi bi-layers me-1"></i>Tipo de visualização</label>
+            <label>Como colorir</label>
             <button class="help-btn" onclick="openVizHelp()">?</button>
           </div>
           <div class="tipo-g">
@@ -1340,7 +1476,8 @@
           </div>
           <input type="hidden" id="sel-paleta" value="Blues" />
           <div class="pal-picker" id="pal-picker">
-            <div class="pal-selected" id="pal-selected" onclick="togglePalDrop()">
+            <div class="pal-selected" id="pal-selected" onclick="togglePalDrop()" tabindex="0" role="button"
+              aria-haspopup="listbox" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePalDrop()}">
               <span class="pal-blocks" id="pal-blocks-preview"></span>
               <span class="pal-label" id="pal-label-preview">Azul</span>
               <i class="bi bi-chevron-down" style="font-size:11px;margin-left:auto;color:#78909c"></i>
@@ -1376,10 +1513,12 @@
           </div>
         </div>
 
+        <div class="etapa-opc">Ajustes opcionais</div>
+
         <!-- Estilos de Linha -->
         <div class="sec-wrap" id="sec-linhas">
           <div class="sec-toggle" onclick="toggleSec(this)">
-            <span><i class="bi bi-border-width me-1"></i>Estilos de Linha</span>
+            <span><i class="bi bi-border-width me-1"></i>Estilos de linha</span>
             <div style="display:flex;align-items:center;gap:6px">
               <button class="help-btn" data-help="h-linhas"
                 onclick="event.stopPropagation();toggleHelp('h-linhas')">?</button>
@@ -1393,7 +1532,7 @@
             <div class="d-flex align-items-center gap-2 mb-1">
               <input type="checkbox" id="chk-mun" class="form-check-input mt-0" />
               <label for="chk-mun"
-                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Municípios</label>
+                style="font-size:12px;font-weight:600;color:#5a6474;cursor:pointer;margin:0">Municípios</label>
               <button class="help-btn ms-auto" data-help="h-mun" onclick="toggleHelp('h-mun')">?</button>
             </div>
             <div class="help-box" id="h-mun">Borda entre municípios individuais. Espessuras menores ficam mais
@@ -1411,7 +1550,7 @@
             <div class="d-flex align-items-center gap-2 mb-1">
               <input type="checkbox" id="chk-uf" class="form-check-input mt-0" />
               <label for="chk-uf"
-                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Contorno
+                style="font-size:12px;font-weight:600;color:#5a6474;cursor:pointer;margin:0">Contorno
                 UF</label>
               <button class="help-btn ms-auto" data-help="h-uf" onclick="toggleHelp('h-uf')">?</button>
             </div>
@@ -1430,7 +1569,7 @@
             <div class="d-flex align-items-center gap-2 mb-1">
               <input type="checkbox" id="chk-reg" class="form-check-input mt-0" />
               <label for="chk-reg"
-                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Contorno
+                style="font-size:12px;font-weight:600;color:#5a6474;cursor:pointer;margin:0">Contorno
                 Região</label>
               <button class="help-btn ms-auto" data-help="h-reg" onclick="toggleHelp('h-reg')">?</button>
             </div>
@@ -1449,7 +1588,7 @@
             <div class="d-flex align-items-center gap-2 mb-1" style="margin-top:10px">
               <input type="checkbox" id="chk-sem-dado-hachura" class="form-check-input mt-0" checked />
               <label for="chk-sem-dado-hachura"
-                style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;cursor:pointer">Hachura
+                style="font-size:12px;font-weight:600;color:#5a6474;cursor:pointer;margin:0">Hachura
                 em áreas sem dado</label>
               <button class="help-btn ms-auto" data-help="h-sem-dado" onclick="toggleHelp('h-sem-dado')">?</button>
             </div>
@@ -1502,12 +1641,14 @@
                   <button class="help-btn" data-help="h-tipo-leg" onclick="toggleHelp('h-tipo-leg')">?</button>
                 </div>
                 <div class="help-box" id="h-tipo-leg"><b>Contagem por cor ★:</b> mostra quantos municípios têm cada
-                  cor.<br><b>Natural Breaks:</b> agrupa por quebras naturais nos dados.<br><b>Quantis:</b> grupos com
+                  cor.<br><b>Faixa + nº de municípios ★:</b> mostra a faixa de valores de cada cor E quantos municípios
+                  ela tem, em ordem (claro→escuro).<br><b>Natural Breaks:</b> agrupa por quebras naturais nos dados.<br><b>Quantis:</b> grupos com
                   mesmo nº de municípios.<br><b>Intervalos Iguais:</b> faixas de valor iguais.<br><b>Contínua:</b> barra
                   de gradiente sem divisões.</div>
                 <select id="sel-tipo-leg" class="form-select form-select-sm"
                   onchange="toggleLegendaOpcoes(this.value); atualizarPreviewLegenda(this.value)">
                   <option value="Contagem">Contagem por cor ★</option>
+                  <option value="Faixa e Contagem">Faixa + nº de municípios ★</option>
                   <option value="Natural Breaks">Natural Breaks</option>
                   <option value="Quantiles">Quantis</option>
                   <option value="Equal Interval">Intervalos Iguais</option>
@@ -1538,7 +1679,7 @@
             </div>
             <!-- Renomear rótulos da legenda -->
             <div id="wrap-leg-labels" style="display:none;margin-top:8px">
-              <label style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px">
+              <label style="font-size:12px;font-weight:600;color:#5a6474">
                 Renomear rótulos
               </label>
               <div id="leg-labels-lista" style="margin-top:4px;display:flex;flex-direction:column;gap:4px"></div>
@@ -1608,7 +1749,7 @@
         <!-- Título do Mapa -->
         <div class="sec-wrap" id="sec-titulo">
           <div class="sec-toggle" onclick="toggleSec(this)">
-            <span><i class="bi bi-fonts me-1"></i>Título do Mapa</span>
+            <span><i class="bi bi-fonts me-1"></i>Título do mapa</span>
             <div style="display:flex;align-items:center;gap:6px">
               <button class="help-btn" data-help="h-titulo"
                 onclick="event.stopPropagation();toggleHelp('h-titulo')">?</button>
@@ -1721,26 +1862,64 @@
 
 
       </div><!-- /sb-body -->
+
+      <!-- Rodapé fixo: formato + gerar -->
+      <div id="sb-acoes">
+        <div id="bloco-saida">
+          <div class="lbl-help">
+            <span class="lbl-s" style="margin-bottom:0">Formato do mapa</span>
+            <button class="help-btn" data-help="h-saida" onclick="toggleHelp('h-saida')" aria-label="Ajuda sobre o formato">?</button>
+          </div>
+          <div class="help-box" id="h-saida"><b>Figura</b> gera uma imagem estática (PNG/SVG) de alta qualidade, ideal para relatórios e apresentações.<br><br><b>HTML Interativo</b> cria um mapa navegável no navegador, com zoom e tooltips ao passar o mouse.</div>
+          <div class="tipo-g">
+            <input type="radio" name="tipo-mapa" id="tm-figura" value="figura" checked>
+            <label for="tm-figura"><i class="bi bi-image me-1"></i>Figura</label>
+            <input type="radio" name="tipo-mapa" id="tm-html" value="html">
+            <label for="tm-html"><i class="bi bi-globe2 me-1"></i>HTML interativo</label>
+          </div>
+        </div>
+        <!-- Tile layer (só aparece no modo HTML) -->
+        <div id="bloco-tile" style="display:none">
+          <span class="lbl-s">Fundo do mapa</span>
+          <div class="tipo-g">
+            <input type="radio" name="tile-layer" id="tl-urbano" value="urbano" checked>
+            <label for="tl-urbano"><i class="bi bi-map me-1"></i>Urbano</label>
+            <input type="radio" name="tile-layer" id="tl-satelite" value="satelite">
+            <label for="tl-satelite"><i class="bi bi-satellite me-1"></i>Satélite</label>
+          </div>
+        </div>
+        <button id="btn-gerar" onclick="gerarMapa()" title="Atalho: Ctrl + Enter"><i class="bi bi-map-fill"></i> Gerar mapa</button>
+        <div id="status-pronto" aria-live="polite"></div>
+      </div>
     </aside>
     <!-- ═══════ FIM SIDEBAR ═══════ -->
 
     <!-- ═══════ CONTEÚDO ═══════ -->
     <main id="ct">
       <div id="ct-head">
-        <nav>
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item" style="font-size:12px"><i class="bi bi-house"></i></li>
-            <li class="breadcrumb-item active" style="font-size:12px">Gerador de Mapas</li>
-          </ol>
-        </nav>
-        <h5 class="ms-2">Mapeamento por Shapefiles IBGE</h5>
+        <div class="ct-info">
+          <h5 id="ct-titulo">Nenhum mapa gerado ainda</h5>
+          <div id="ct-sub">O mapa aparece aqui depois que você clicar em Gerar mapa.</div>
+        </div>
+        <div id="bloco-export-img">
+          <button id="btn-export" onclick="exportarPNG()" disabled title="Imagem em alta resolução para relatórios"><i class="bi bi-download"></i> Baixar PNG</button>
+          <button id="btn-export-svg" onclick="exportarSVG()" disabled title="Vetorial: amplia sem perder qualidade"><i class="bi bi-filetype-svg"></i> Baixar SVG</button>
+        </div>
+        <div id="bloco-export-html" style="display:none">
+          <button id="btn-export-html" onclick="exportarHTML()" disabled><i class="bi bi-filetype-html"></i> Baixar HTML</button>
+        </div>
       </div>
       <div id="map-wrap">
         <div id="ph">
           <div class="phi"><i class="bi bi-map"></i></div>
-          <h6>Configure e clique em Gerar Mapa</h6>
-          <p>Carregue um CSV/Excel e adicione métricas, ou use o modo de Entrada Manual. Clique na imagem para ampliar.
-          </p>
+          <h6>Seu mapa aparece aqui</h6>
+          <ol class="ph-passos">
+            <li>Escolha a planilha com o código IBGE</li>
+            <li>Diga o que o mapa deve mostrar</li>
+            <li>Clique em <b>Gerar mapa</b></li>
+          </ol>
+          <button id="ph-btn" type="button" onclick="document.getElementById('inp-file').click()"><i class="bi bi-upload"></i> Escolher planilha</button>
+          <p>Também dá para arrastar o arquivo para qualquer ponto da tela.</p>
         </div>
         <div id="ov">
           <div class="spin"></div>
@@ -2044,7 +2223,18 @@
       const body = toggle.nextElementSibling;
       wrap.classList.toggle('open');
       body.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', wrap.classList.contains('open'));
     }
+    // Seções recolhíveis também abrem pelo teclado (Tab + Enter/Espaço)
+    document.querySelectorAll('.sec-toggle').forEach(t => {
+      t.tabIndex = 0;
+      t.setAttribute('role', 'button');
+      t.setAttribute('aria-expanded', 'false');
+      t.addEventListener('keydown', e => {
+        if (e.target !== t) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSec(t); }
+      });
+    });
 
     // ── Alinhamento do Título ─────────────────────────────────────────────────────
     document.querySelectorAll('input[name="titulo-ha"]').forEach(r => r.addEventListener('change', function () {
@@ -2068,10 +2258,35 @@
       document.getElementById('bloco-tile').style.display = isHtml ? '' : 'none';
       document.getElementById('bloco-export-img').style.display = isHtml ? 'none' : '';
       document.getElementById('bloco-export-html').style.display = isHtml ? '' : 'none';
+      atualizarExportacao();
     }));
 
     // ── Estado ────────────────────────────────────────────────────────────────────
     let csvFile = null, metaCSV = null, _lastHtml = null;
+
+    // Download só fica ativo quando existe um mapa do formato correspondente na tela.
+    function atualizarExportacao() {
+      const img = document.getElementById('map-img');
+      const temFigura = !!img.getAttribute('src') && img.style.display !== 'none';
+      document.getElementById('btn-export').disabled = !temFigura;
+      document.getElementById('btn-export-svg').disabled = !temFigura;
+      document.getElementById('btn-export-html').disabled = !_lastHtml;
+    }
+
+    // Linha abaixo do Gerar mapa: diz o que ainda falta, na ordem das etapas.
+    function atualizarProntidao() {
+      const st = document.getElementById('status-pronto');
+      let falta = null;
+      if (!csvFile) falta = 'Comece escolhendo a planilha (etapa 1).';
+      else if (!document.getElementById('sel-col-geo').value) falta = 'Falta a coluna com o código IBGE (etapa 2).';
+      else if (!document.getElementById('sel-col-num').value) falta = 'Falta escolher o que o mapa deve mostrar (etapa 2).';
+      st.classList.toggle('ok', !falta);
+      st.innerHTML = falta
+        ? `<i class="bi bi-info-circle"></i><span>${falta}</span>`
+        : '<i class="bi bi-check-circle-fill"></i><span>Tudo pronto para gerar o mapa.</span>';
+      document.getElementById('ph-btn').style.display = csvFile ? 'none' : '';
+    }
+    document.getElementById('sb').addEventListener('change', atualizarProntidao);
 
     // ── Upload ────────────────────────────────────────────────────────────────────
     const inp = document.getElementById('inp-file');
@@ -2095,6 +2310,10 @@
       csvFile = null; metaCSV = null;
       inp.value = ''; fnLbl.textContent = ''; btnRem.style.display = 'none';
       document.getElementById('painel-analise').style.display = 'none';
+      document.getElementById('resumo-arquivo').style.display = 'none';
+      document.getElementById('wrap-aba').style.display = 'none';
+      document.getElementById('dados-vazio').style.display = '';
+      atualizarProntidao();
       toast('Arquivo removido.', 'info');
     });
 
@@ -2142,10 +2361,15 @@
       const selGeo = document.getElementById('sel-col-geo');
       selGeo.innerHTML = '<option value="">— selecione —</option>';
       d.colunas.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if (c === d.col_geo) o.selected = true; selGeo.appendChild(o); });
-      selGeo.addEventListener('change', () => {
+      // onchange (e não addEventListener) para não acumular um listener a cada arquivo carregado
+      selGeo.onchange = () => {
         const vals = (metaCSV?.amostra || []).map(r => r[selGeo.value]).filter(Boolean).join(', ');
         document.getElementById('preview-geo').textContent = vals ? `Ex: ${vals}` : '';
-      });
+      };
+      selGeo.onchange();
+      if (d.col_geo && selGeo.value === d.col_geo)
+        document.getElementById('preview-geo').textContent =
+          'Encontrada automaticamente. ' + document.getElementById('preview-geo').textContent;
 
       todasColunas = d.colunas;
       colunasNumericas = d.numericas;
@@ -2160,7 +2384,10 @@
       document.getElementById('nv-mun').checked = true;
       atualizarFiltrosFoco('municipio');
 
-      document.getElementById('painel-analise').style.display = 'block';
+      document.getElementById('painel-analise').style.display = 'flex';
+      document.getElementById('resumo-arquivo').style.display = 'block';
+      document.getElementById('dados-vazio').style.display = 'none';
+      atualizarProntidao();
     }
 
     // ── Nível → mostrar filtros geográficos e ajustar legenda ────────────────────
@@ -2220,6 +2447,18 @@
         titulo: 'Contagem por cor ★ (padrão)',
         desc: 'Cada cor do mapa mostra quantos municípios têm aquela cor. Você vê de imediato quantos lugares estão em cada nível, sem precisar interpretar intervalos de valores.',
         quando: '✔ Recomendado para a maioria dos casos. Intuitivo e direto.',
+      },
+      'Faixa e Contagem': {
+        visual: _classificado([
+          '1–4  —  83 municípios',
+          '5–11  —  36 municípios',
+          '12–20  —  16 municípios',
+          '21–28  —  7 municípios',
+          '29–37  —  10 municípios',
+        ]),
+        titulo: 'Faixa + nº de municípios ★',
+        desc: 'Cada cor mostra a FAIXA de valores que representa e QUANTOS municípios estão nela, em ordem do claro (menor) ao escuro (maior). Assim dá para saber o que a cor significa e o tamanho do grupo ao mesmo tempo.',
+        quando: '✔ Use quando quiser uma legenda completa: interpretável (faixa) e informativa (quantidade).',
       },
       'Contínua': {
         visual: _gradiente(),
@@ -2352,11 +2591,11 @@
       const tipoMapa = document.querySelector('input[name="tipo-mapa"]:checked')?.value || 'figura';
 
       try {
-        if (!csvFile) { toast('Carregue um arquivo CSV primeiro.', 'err'); return; }
+        if (!csvFile) { toast('Escolha a planilha primeiro (etapa 1).', 'err'); document.getElementById('ph').style.display = 'flex'; return; }
         const col_geo = document.getElementById('sel-col-geo').value;
-        if (!col_geo) { toast('Selecione a coluna Código IBGE (Passo 2).', 'err'); return; }
+        if (!col_geo) { toast('Escolha a coluna com o código IBGE (etapa 2).', 'err'); document.getElementById('ph').style.display = 'flex'; document.getElementById('sel-col-geo').focus(); return; }
         const col_valor = document.getElementById('sel-col-num').value;
-        if (!col_valor) { toast('Selecione o que deseja visualizar no mapa (Passo 4).', 'err'); return; }
+        if (!col_valor) { toast('Escolha o que o mapa deve mostrar (etapa 2).', 'err'); document.getElementById('ph').style.display = 'flex'; document.getElementById('sel-col-num').focus(); return; }
 
         const fd = coletarParams(false);
         fd.append('arquivo', csvFile);
@@ -2376,6 +2615,7 @@
           const doc = iframe.contentDocument || iframe.contentWindow.document;
           doc.open(); doc.write(d.html); doc.close();
           exibirAvisos(null);
+          atualizarCabecalhoMapa(col_valor, 'Arraste para mover e use a roda do mouse para dar zoom.');
           toast('Mapa interativo gerado!', 'ok');
           _tourNotify();
         } else {
@@ -2386,6 +2626,7 @@
           img.src = d.imagem; img.style.display = 'block'; img.classList.remove('zoomed');
           _lastHtml = null;
           exibirAvisos(d.avisos);
+          atualizarCabecalhoMapa(col_valor, 'Clique no mapa para ampliar.');
           toast('Mapa gerado!', 'ok');
           _tourNotify();
         }
@@ -2395,8 +2636,18 @@
       } finally {
         document.getElementById('ov').classList.remove('show');
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-map-fill"></i> Gerar Mapa';
+        btn.innerHTML = '<i class="bi bi-map-fill"></i> Gerar mapa';
+        atualizarExportacao();
       }
+    }
+
+    function atualizarCabecalhoMapa(colValor, dica) {
+      const nivelTxt = { municipio: 'município', uf: 'estado', regiao: 'região' }[
+        document.querySelector('input[name="nivel"]:checked')?.value] || '';
+      const recorte = document.getElementById('sel-foco-uf').value || document.getElementById('sel-foco-reg').value;
+      document.getElementById('ct-titulo').textContent =
+        `${colValor} por ${nivelTxt}${recorte ? ' — ' + recorte : ''}`;
+      document.getElementById('ct-sub').textContent = `${csvFile?.name || ''} · ${dica}`;
     }
 
     function exportarHTML() {
@@ -2435,7 +2686,7 @@
       finally {
         document.getElementById('ov').classList.remove('show');
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-download"></i> Exportar PNG (300 dpi)';
+        btn.innerHTML = '<i class="bi bi-download"></i> Baixar PNG';
       }
     }
 
@@ -2466,7 +2717,7 @@
       finally {
         document.getElementById('ov').classList.remove('show');
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-filetype-svg"></i> Exportar SVG (vetorial)';
+        btn.innerHTML = '<i class="bi bi-filetype-svg"></i> Baixar SVG';
       }
     }
 
@@ -2589,25 +2840,25 @@
         doneMsg: 'Coluna IBGE selecionada! ✓'
       },
       {
-        target: '#sel-agr',
-        title: '🧮 Passo 5 — Tipo de cálculo',
-        text: 'Quando há várias linhas para o mesmo município, como calcular o valor final?\n\n• Soma — soma todos os valores\n• Média — calcula a média\n• Máximo / Mínimo — pega o extremo\n• Contagem — conta as linhas\n\nPara dados únicos por município, use Soma.',
-        position: 'right',
-        condition: () => true,
-        readDelay: 2000,
-        events: [],
-        waitMsg: '',
-        doneMsg: 'Entendido! Clique em Próximo →'
-      },
-      {
         target: '#sel-col-num',
-        title: '📊 Passo 6 — O que visualizar',
+        title: '📊 Passo 5 — O que o mapa deve mostrar',
         text: 'Escolha qual coluna de dados será representada pelas cores do mapa.\n\nEx: população, receita, quantidade de ocorrências…',
         position: 'right',
         condition: () => (document.getElementById('sel-col-num')?.value || '') !== '',
         events: [{ sel: '#sel-col-num', ev: 'change' }],
         waitMsg: 'Selecione a coluna de valores para continuar',
         doneMsg: 'Coluna de valores selecionada! ✓'
+      },
+      {
+        target: '#sel-agr',
+        title: '🧮 Passo 6 — Áreas repetidas na planilha',
+        text: 'Quando há várias linhas para o mesmo município, como calcular o valor final?\n\n• Somar — soma todos os valores\n• Média — calcula a média\n• Maior / menor valor — pega o extremo\n• Contar — conta as linhas\n\nPara dados únicos por município, deixe em Somar.',
+        position: 'right',
+        condition: () => true,
+        readDelay: 2000,
+        events: [],
+        waitMsg: '',
+        doneMsg: 'Entendido! Clique em Próximo →'
       },
       {
         target: '#fg-viz',
@@ -2690,7 +2941,7 @@
       },
       {
         target: '#bloco-saida',
-        title: '💾 Passo 12 — Tipo de saída',
+        title: '💾 Passo 12 — Formato do mapa',
         text: 'Escolha o formato do mapa gerado:\n\n• Figura — imagem PNG/SVG de alta qualidade para relatórios e apresentações\n• HTML Interativo — mapa navegável no navegador com zoom e informações ao passar o mouse (fundo Urbano ou Satélite)',
         position: 'right',
         condition: () => true,
@@ -2702,7 +2953,7 @@
       {
         target: '#btn-gerar',
         title: '🚀 Passo 13 — Gerar o mapa!',
-        text: 'Tudo configurado!\n\nClique no botão "Gerar Mapa" para criar seu mapa com todas as configurações escolhidas.',
+        text: 'Tudo configurado!\n\nClique em "Gerar mapa" para criar seu mapa com as configurações escolhidas. Depois, use os botões Baixar no topo do mapa para salvar.',
         position: 'right',
         condition: () => {
           const img = document.getElementById('map-img');
@@ -2711,7 +2962,7 @@
                  (ifr && ifr.style.display !== 'none');
         },
         events: [],
-        waitMsg: 'Clique em "Gerar Mapa" para concluir',
+        waitMsg: 'Clique em "Gerar mapa" para concluir',
         doneMsg: 'Mapa gerado! Tutorial concluído 🎉'
       }
     ];
@@ -2920,6 +3171,11 @@
     }
 
     document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        const btn = document.getElementById('btn-gerar');
+        if (!btn.disabled) { e.preventDefault(); gerarMapa(); }
+        return;
+      }
       if (e.key === 'Escape') {
         closeCsvHelp(); closeCalcHelp(); closeVizHelp();
         closeEscalaHelp(); closePaletaHelp(); closeColHelp();
@@ -2928,6 +3184,7 @@
       }
     });
 
+    atualizarProntidao();
     window.addEventListener('load', () => initTour(false));
   </script>
 </body>
