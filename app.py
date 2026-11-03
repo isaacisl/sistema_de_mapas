@@ -549,7 +549,7 @@ def _gerar_choropleth_csv(df, nivel, col_geo, col_valor, agregacao, **kw):
     if sem_dado_nomes:
         avisos["sem_dado"] = sem_dado_nomes
 
-    png = _renderizar(merged, "valor", nome_val, **kw)
+    png = _renderizar(merged, "valor", nome_val, nivel=nivel, **kw)
     return png, avisos
 
 
@@ -597,7 +597,10 @@ def _renderizar(merged, col_plot, nome_val,
                 cat_cores=None,
                 sem_dado_hachura=True,
                 cor_sem_dado="#d9d9d9", cor_hachura="#999999",
-                dpi=120, formato_export="png", **_):
+                dpi=120, formato_export="png", nivel="municipio", **_):
+
+    # Nome das áreas usado nas legendas "Contagem" e "Faixa e Contagem"
+    _nome_areas = {"uf": "estados", "regiao": "regiões"}.get(nivel, "municípios")
 
     # Descarta geometrias nulas/vazias (evita erro "aspect must be finite and positive")
     merged = merged[merged.geometry.notna() & ~merged.geometry.is_empty].copy()
@@ -888,7 +891,7 @@ def _renderizar(merged, col_plot, nome_val,
                             if i >= len(_counts):
                                 break
                             _n = int(_counts[i])
-                            _txt.set_text(f"{_n:,}".replace(",", ".") + " municípios")
+                            _txt.set_text(f"{_n:,}".replace(",", ".") + f" {_nome_areas}")
                 except Exception as _e:
                     print(f"[WARN] Contagem – pós-processamento de legenda falhou: {_e}")
 
@@ -927,7 +930,7 @@ def _renderizar(merged, col_plot, nome_val,
                                 break
                             _n = int(_contagem_counts[i])
                             _nm = f"{_n:,}".replace(",", ".")
-                            _txt.set_text(f"{_fmt_faixa(i)}  —  {_nm} municípios")
+                            _txt.set_text(f"{_fmt_faixa(i)}  —  {_nm} {_nome_areas}")
                 except Exception as _e:
                     print(f"[WARN] Faixa e Contagem – pós-processamento de legenda falhou: {_e}")
 
