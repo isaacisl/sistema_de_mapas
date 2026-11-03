@@ -1,0 +1,89 @@
+<!-- CALOR -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:4px">
+          <i class="bi bi-thermometer-half me-1"></i>Calor (Gradiente)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada área recebe uma cor proporcional ao seu valor numérico — quanto maior, mais escura. Ideal para visualizar
+          intensidade, como população, receita ou índices.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:280px;border-radius:8px;border:1px solid #c6d4ee">
+            <rect width="200" height="110" fill="#f7f9ff" />
+            <!-- Linha 1 -->
+            <rect x="4" y="4" width="44" height="30" rx="4" fill="#deebf7" />
+            <rect x="52" y="4" width="44" height="30" rx="4" fill="#c6dbef" />
+            <rect x="100" y="4" width="44" height="30" rx="4" fill="#9ecae1" />
+            <rect x="148" y="4" width="48" height="30" rx="4" fill="#6baed6" />
+            <!-- Linha 2 -->
+            <rect x="4" y="38" width="44" height="30" rx="4" fill="#9ecae1" />
+            <rect x="52" y="38" width="44" height="30" rx="4" fill="#4292c6" />
+            <rect x="100" y="38" width="44" height="30" rx="4" fill="#2171b5" />
+            <rect x="148" y="38" width="48" height="30" rx="4" fill="#08519c" />
+            <!-- Linha 3 -->
+            <rect x="4" y="72" width="44" height="34" rx="4" fill="#6baed6" />
+            <rect x="52" y="72" width="44" height="34" rx="4" fill="#2171b5" />
+            <rect x="100" y="72" width="44" height="34" rx="4" fill="#08519c" />
+            <rect x="148" y="72" width="48" height="34" rx="4" fill="#08306b" />
+            <!-- Legenda gradiente -->
+            <defs>
+              <linearGradient id="gradLeg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:6px;gap:4px;align-items:center">
+          <span style="font-size:10px;color:#78909c">Baixo</span>
+          <div
+            style="width:120px;height:8px;border-radius:4px;background:linear-gradient(to right,#deebf7,#08306b);border:1px solid #c6d4ee">
+          </div>
+          <span style="font-size:10px;color:#78909c">Alto</span>
+        </div>
+      </div>
+
+      <!-- CATEGÓRICO -->
+      <div style="background:#fce4ec;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#880e4f;margin-bottom:4px">
+          <i class="bi bi-tags me-1"></i>Categórico (por grupo)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada categoria recebe uma cor distinta. Ideal para colunas de texto como porte, região, partido, tipo de
+          gestão. Você pode personalizar a cor de cada categoria.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:280px;border-radius:8px;border:1px solid #f8bbd0">
+            <rect width="200" height="110" fill="#fff7f9" />
+            <!-- Linha 1 -->
+            <rect x="4" y="4" width="44" height="30" rx="4" fill="#003DA5" />
+            <rect x="52" y="4" width="44" height="30" rx="4" fill="#e53935" />
+            <rect x="100" y="4" width="44" height="30" rx="4" fill="#43a047" />
+            <rect x="148" y="4" width="48" height="30" rx="4" fill="#003DA5" />
+            <!-- Linha 2 -->
+            <rect x="4" y="38" width="44" height="30" rx="4" fill="#fb8c00" />
+            <rect x="52" y="38" width="44" height="30" rx="4" fill="#43a047" />
+            <rect x="100" y="38" width="44" height="30" rx="4" fill="#e53935" />
+            <rect x="148" y="38" width="48" height="30" rx="4" fill="#8e24aa" />
+            <!-- Linha 3 -->
+            <rect x="4" y="72" width="44" height="34" rx="4" fill="#43a047" />
+            <rect x="52" y="72" width="44" height="34" rx="4" fill="#8e24aa" />
+            <rect x="100" y="72" width="44" height="34" rx="4" fill="#fb8c00" />
+            <rect x="148" y="72" width="48" height="34" rx="4" fill="#003DA5" />
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:center;margin-top:6px;gap:10px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#003DA5;border-radius:3px"></span>Grande</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#e53935;border-radius:3px"></span>Médio</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#43a047;border-radius:3px"></span>Pequeno</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#fb8c00;border-radius:3px"></span>Micro</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:#5a6474"><span
+              style="display:inline-block;width:12px;height:12px;background:#8e24aa;border-radius:3px"></span>Nano</span>
+        </div>
+      </div>

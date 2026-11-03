@@ -1,0 +1,125 @@
+<p style="font-size:13px;color:#1a2744;font-weight:600;margin-bottom:14px">
+        Escolha a coluna cujos valores vão <b>colorir cada área</b> do mapa. Veja os três casos mais comuns:
+      </p>
+
+      <!-- Numérica contínua -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:6px">
+          <i class="bi bi-bar-chart-fill me-1"></i>Coluna numérica — valores contínuos
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando os números têm grandeza (população, receita, índice…). O mapa usa gradiente de cor — quanto maior o
+          valor, mais escura a área.
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #c6d4ee;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#003DA5;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#003DA5;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#1565c0;color:#fff;padding:6px 10px;text-align:left">👉 populacao</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f7f9ff">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">3.015.268</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">3550308</td>
+                <td style="padding:5px 10px;color:#5a6474">São Paulo</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">12.396.372</td>
+              </tr>
+              <tr style="background:#f7f9ff">
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#003DA5">2.219.580</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Calor</b> para visualizar este dado.
+        </div>
+      </div>
+
+      <!-- Binária 0/1 -->
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:6px">
+          <i class="bi bi-toggle-on me-1"></i>Coluna binária — presença ou ausência (0 / 1)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando o valor indica apenas se algo existe ou não naquela área (filiado, conveniado, certificado…).
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #c8e6c9;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#2e7d32;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#2e7d32;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#388e3c;color:#fff;padding:6px 10px;text-align:left">👉 filiado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f7fff7">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#2e7d32">1</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">3550308</td>
+                <td style="padding:5px 10px;color:#5a6474">São Paulo</td>
+                <td style="padding:5px 10px;font-weight:700;color:#c62828">0</td>
+              </tr>
+              <tr style="background:#f7fff7">
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#2e7d32">1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Categórico</b> para visualizar este
+          dado.</div>
+      </div>
+
+      <!-- Categórica -->
+      <div style="background:#fce4ec;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#880e4f;margin-bottom:6px">
+          <i class="bi bi-tags me-1"></i>Coluna categórica — grupos ou classificações
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Quando o valor é um texto que representa uma categoria (porte, partido, região, tipo de gestão…). Cada grupo
+          recebe uma cor distinta.
+        </div>
+        <div style="overflow-x:auto;border-radius:6px;border:1px solid #f8bbd0;margin-bottom:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr>
+                <th style="background:#880e4f;color:#fff;padding:6px 10px;text-align:left">cod_ibge</th>
+                <th style="background:#880e4f;color:#fff;padding:6px 10px;text-align:left">municipio</th>
+                <th style="background:#ad1457;color:#fff;padding:6px 10px;text-align:left">👉 porte</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#fff7f9">
+                <td style="padding:5px 10px;color:#5a6474">5300108</td>
+                <td style="padding:5px 10px;color:#5a6474">Brasília</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Grande</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 10px;color:#5a6474">1302603</td>
+                <td style="padding:5px 10px;color:#5a6474">Manaus</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Médio</td>
+              </tr>
+              <tr style="background:#fff7f9">
+                <td style="padding:5px 10px;color:#5a6474">5002704</td>
+                <td style="padding:5px 10px;color:#5a6474">Campo Grande</td>
+                <td style="padding:5px 10px;font-weight:700;color:#880e4f">Pequeno</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:#5a6474;font-style:italic">→ Use o tipo <b>Categórico</b> para visualizar este
+          dado.</div>
+      </div>

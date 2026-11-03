@@ -12,7 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.patches import Patch
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024
@@ -20,6 +20,7 @@ app.config["MAX_CONTENT_LENGTH"] = 300 * 1024 * 1024
 BASE_DIR = os.path.dirname(__file__)
 SHP_DIR  = os.path.join(BASE_DIR, "shapefiles")
 GEO_DIR  = os.path.join(BASE_DIR, "geodata")
+DIST_DIR = os.path.join(BASE_DIR, "static", "dist")
 
 # Nomes dos shapefiles originais do IBGE, por nível.
 SHP_NOMES = {
@@ -83,7 +84,10 @@ def _fmt_cat(v):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Front em React (pasta frontend/), compilado com `npm run build` para static/dist.
+    if not os.path.exists(os.path.join(DIST_DIR, "index.html")):
+        return ("Front não compilado: rode `npm install` e `npm run build` dentro de frontend/.", 500)
+    return send_from_directory(DIST_DIR, "index.html")
 
 
 @app.route("/analisar-csv", methods=["POST"])

@@ -13,3 +13,5 @@ desktop.ini
 test_*.png
 .claude/settings.local.json
 .claude/worktrees/
+# Front (React): dependências ficam fora; o build (static/dist) é versionado
+frontend/node_modules/

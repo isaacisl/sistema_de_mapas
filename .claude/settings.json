@@ -4,7 +4,9 @@
       "Read(./shapefiles/**)",
       "Read(./geodata/**)",
       "Read(./__pycache__/**)",
-      "Read(./.claude/worktrees/**)"
+      "Read(./.claude/worktrees/**)",
+      "Read(./frontend/node_modules/**)",
+      "Read(./static/dist/**)"
     ]
   }
 }

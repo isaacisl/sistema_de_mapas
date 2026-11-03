@@ -1,0 +1,100 @@
+<p style="font-size:13px;color:#1a2744;font-weight:600;margin-bottom:12px">
+        Sua planilha precisa ter pelo menos <b>2 colunas</b>:
+      </p>
+
+      <div style="background:#eef3fc;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div
+          style="font-size:11px;font-weight:700;color:#003DA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+          <i class="bi bi-check-circle-fill me-1"></i>Colunas necessárias
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:#1a2744">1. Código IBGE</div>
+          <div style="font-size:11px;color:#5a6474;margin-top:3px;line-height:1.6">
+            Código numérico que identifica a área geográfica:<br>
+            &bull; <b>7 dígitos</b> → município &nbsp;<code
+              style="background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #dde3ec">5300108</code>
+            (Brasília)
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a2744">2. Coluna de dados a plotar</div>
+          <div style="font-size:11px;color:#5a6474;margin-top:3px;line-height:1.6">
+            Qualquer coluna <b>numérica</b> ou <b>categórica</b> que deseja visualizar no mapa<br>
+            (ex: população, receita, índice, quantidade, filiado, porte).
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="font-size:11px;font-weight:700;color:#5a6474;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+        <i class="bi bi-table me-1"></i>Exemplo de planilha válida
+      </div>
+      <div style="overflow-x:auto;border-radius:6px;border:1px solid #dde3ec;margin-bottom:14px">
+        <table>
+          <thead>
+            <tr>
+              <th>cod_ibge</th>
+              <th>municipio</th>
+              <th>populacao</th>
+              <th>porte</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>5300108</td>
+              <td>Brasília</td>
+              <td>3015268</td>
+              <td>Grande</td>
+            </tr>
+            <tr>
+              <td>3550308</td>
+              <td>São Paulo</td>
+              <td>12396372</td>
+              <td>Pequeno</td>
+            </tr>
+            <tr>
+              <td>3304557</td>
+              <td>Rio de Janeiro</td>
+              <td>6747815</td>
+              <td>Grande</td>
+            </tr>
+            <tr>
+              <td>1302603</td>
+              <td>Manaus</td>
+              <td>2219580</td>
+              <td>Médio</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background:#fff8e1;border-radius:8px;border:1px solid #ffe082;padding:10px 14px">
+        <div
+          style="font-size:11px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+          <i class="bi bi-lightbulb-fill me-1"></i>Dicas importantes
+        </div>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          📋 Código IBGE</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0 0 10px;padding-left:16px;line-height:1.8">
+          <li>O nome da coluna de código IBGE pode ser qualquer um</li>
+          <li>A coluna de código IBGE deve conter <b>apenas números</b></li>
+        </ul>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          📁 Arquivo</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0 0 10px;padding-left:16px;line-height:1.8">
+          <li>Aceita <b>.csv</b>, <b>.xlsx</b>, <b>.xls</b> e <b>.xlsm</b></li>
+          <li>Para CSV, use vírgula <b>(,)</b> ou ponto-e-vírgula <b>(;)</b> como separador</li>
+        </ul>
+
+        <div
+          style="font-size:11px;font-weight:700;color:#5a4000;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">
+          🔢 Dados e agregação</div>
+        <ul style="font-size:11px;color:#5a4000;margin:0;padding-left:16px;line-height:1.8">
+          <li>Pode ter várias linhas por município — elas serão <b>agregadas</b> (soma, média, etc.)</li>
+          <li>Municípios sem dado aparecem em <b>cinza</b> no mapa</li>
+        </ul>
+      </div>

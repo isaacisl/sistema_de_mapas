@@ -1,0 +1,38 @@
+{
+  "csv": {
+    "titulo": "Como montar sua planilha",
+    "icone": "bi bi-file-earmark-spreadsheet",
+    "estiloCaixa": "",
+    "estiloCabecalho": ""
+  },
+  "calc": {
+    "titulo": "Entendendo os Tipos de Cálculo",
+    "icone": "bi bi-calculator",
+    "estiloCaixa": "",
+    "estiloCabecalho": "background:var(--blue-dk)"
+  },
+  "viz": {
+    "titulo": "Tipos de Visualização",
+    "icone": "bi bi-layers",
+    "estiloCaixa": "max-width:580px",
+    "estiloCabecalho": ""
+  },
+  "escala": {
+    "titulo": "Distribuição de Cores",
+    "icone": "bi bi-bar-chart-steps",
+    "estiloCaixa": "max-width:580px",
+    "estiloCabecalho": ""
+  },
+  "paleta": {
+    "titulo": "Paletas de Cores",
+    "icone": "bi bi-palette",
+    "estiloCaixa": "max-width:620px",
+    "estiloCabecalho": ""
+  },
+  "col": {
+    "titulo": "O que selecionar como dado do mapa?",
+    "icone": "bi bi-table",
+    "estiloCaixa": "max-width:560px",
+    "estiloCabecalho": ""
+  }
+}

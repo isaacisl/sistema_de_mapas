@@ -1,0 +1,111 @@
+<!-- LINEAR -->
+      <div style="background:#eef3fc;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#003DA5;margin-bottom:4px">
+          <i class="bi bi-arrow-right me-1"></i>Linear
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          A cor avança <b>proporcionalmente ao valor</b>. Se o valor dobra, a posição na escala também dobra.
+          Funciona bem quando os dados estão bem distribuídos e sem valores extremos dominantes.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #c6d4ee">
+            <rect width="280" height="80" fill="#f7f9ff" />
+            <defs>
+              <linearGradient id="gLin" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="12" width="260" height="30" rx="5" fill="url(#gLin)" />
+            <!-- marcadores igualmente espaçados -->
+            <line x1="10" y1="42" x2="10" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="75" y1="42" x2="75" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="140" y1="42" x2="140" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="205" y1="42" x2="205" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="270" y1="42" x2="270" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <text x="10" y="62" font-size="9" fill="#78909c" text-anchor="middle">0</text>
+            <text x="75" y="62" font-size="9" fill="#78909c" text-anchor="middle">250</text>
+            <text x="140" y="62" font-size="9" fill="#78909c" text-anchor="middle">500</text>
+            <text x="205" y="62" font-size="9" fill="#78909c" text-anchor="middle">750</text>
+            <text x="270" y="62" font-size="9" fill="#78909c" text-anchor="middle">1000</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos iguais em valor</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- PROPORCIONAL -->
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:4px">
+          <i class="bi bi-distribute-horizontal me-1"></i>Proporcional (Rank)
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Cada faixa de cor representa o <b>mesmo percentual de municípios</b> (ex: 20% por cor).
+          Ideal quando poucos valores muito altos dominam o mapa e deixam o restante invisível.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #c8e6c9">
+            <rect width="280" height="80" fill="#f7fff7" />
+            <!-- 5 blocos de largura igual (52px cada) -->
+            <rect x="10" y="12" width="52" height="30" rx="0" fill="#deebf7" />
+            <rect x="62" y="12" width="52" height="30" rx="0" fill="#9ecae1" />
+            <rect x="114" y="12" width="52" height="30" rx="0" fill="#4292c6" />
+            <rect x="166" y="12" width="52" height="30" rx="0" fill="#2171b5" />
+            <rect x="218" y="12" width="52" height="30" rx="0" fill="#084594" />
+            <!-- bordas entre blocos -->
+            <line x1="62" y1="12" x2="62" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="114" y1="12" x2="114" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="166" y1="12" x2="166" y2="42" stroke="#fff" stroke-width="2" />
+            <line x1="218" y1="12" x2="218" y2="42" stroke="#fff" stroke-width="2" />
+            <!-- rótulos -->
+            <text x="36" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="88" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="140" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="192" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="244" y="62" font-size="9" fill="#78909c" text-anchor="middle">20%</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos iguais em nº de
+              municípios</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div style="background:#fff3e0;border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#e65100;margin-bottom:4px">
+          <i class="bi bi-activity me-1"></i>Logarítmica
+        </div>
+        <div style="font-size:11px;color:#5a6474;margin-bottom:10px;line-height:1.6">
+          Comprime os valores <b>altos</b> e expande os <b>baixos</b>. Municípios com valores menores ganham
+          mais destaque visual. Ideal para dados com grande amplitude, como população.
+        </div>
+        <div style="display:flex;justify-content:center">
+          <svg viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg"
+            style="width:100%;max-width:320px;border-radius:8px;border:1px solid #ffe0b2">
+            <rect width="280" height="80" fill="#fffdf7" />
+            <defs>
+              <linearGradient id="gLog2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#deebf7" />
+                <stop offset="12%" stop-color="#9ecae1" />
+                <stop offset="35%" stop-color="#4292c6" />
+                <stop offset="65%" stop-color="#2171b5" />
+                <stop offset="100%" stop-color="#08306b" />
+              </linearGradient>
+            </defs>
+            <rect x="10" y="12" width="260" height="30" rx="5" fill="url(#gLog2)" />
+            <!-- marcadores em posições logarítmicas -->
+            <line x1="10" y1="42" x2="10" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="42" y1="42" x2="42" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="100" y1="42" x2="100" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="178" y1="42" x2="178" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <line x1="270" y1="42" x2="270" y2="50" stroke="#90a4ae" stroke-width="1" />
+            <text x="10" y="62" font-size="9" fill="#78909c" text-anchor="middle">10</text>
+            <text x="42" y="62" font-size="9" fill="#78909c" text-anchor="middle">50</text>
+            <text x="100" y="62" font-size="9" fill="#78909c" text-anchor="middle">200</text>
+            <text x="178" y="62" font-size="9" fill="#78909c" text-anchor="middle">500</text>
+            <text x="270" y="62" font-size="9" fill="#78909c" text-anchor="middle">1000</text>
+            <text x="140" y="76" font-size="8" fill="#90a4ae" text-anchor="middle">intervalos em escala
+              logarítmica</text>
+          </svg>
+        </div>
+      </div>
